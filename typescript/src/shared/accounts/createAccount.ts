@@ -23,7 +23,7 @@ It takes the following arguments:
 - identity_business_details_registered_name (str, optional): The business legal name.
 - identity_business_details_doing_business_as (str, optional): The name which is used by the business (DBA name).
 - identity_business_details_structure (str, optional): The legal structure of the business. Examples: 'llc', 'corporation', 'partnership', etc.
-- identity_business_details_phone (str, optional): The phone number of the business entity.
+- identity_business_details_phone (str, optional): The phone number of the business entity (e.g. +1 647 111 1111).
 - identity_business_details_url (str, optional): The business's publicly available website.
 - identity_business_details_product_description (str, optional): Internal-only description of the product sold or service provided by the business.
 - identity_business_details_estimated_worker_count (int, optional): An estimated upper bound of employees, contractors, vendors, etc. currently working for the business.
@@ -39,7 +39,7 @@ It takes the following arguments:
 - identity_individual_given_name (str, optional): The individual's given name (first name).
 - identity_individual_surname (str, optional): The individual's surname (last name or family name).
 - identity_individual_email (str, optional): The individual's email address.
-- identity_individual_phone (str, optional): The individual's phone number.
+- identity_individual_phone (str, optional): The individual's phone number (e.g. +1 647 111 1111).
 - identity_individual_date_of_birth (str, optional): The individual's date of birth in YYYY-MM-DD format.
 - identity_individual_address_street_address (str, optional): Individual's street address (including apartment, suite, etc.).
 - identity_individual_address_city (str, optional): Individual's city, district, suburb, town, or village.
@@ -52,6 +52,18 @@ It takes the following arguments:
 - configuration_merchant_bacs_debit_payments_display_name (str, optional): Display name for BACS debit payments.
 - configuration_merchant_card_payments_decline_on_avs_failure (bool, optional): Whether to decline charges that fail AVS checks.
 - configuration_merchant_card_payments_decline_on_cvc_failure (bool, optional): Whether to decline charges that fail CVC checks.
+- configuration_merchant_mcc (str, optional): 4-digit Merchant Category Code (MCC).
+- configuration_merchant_statement_descriptor (str, optional): Statement descriptor (max 22 characters).
+- configuration_merchant_statement_descriptor_prefix (str, optional): Statement descriptor prefix (max 10 characters).
+- configuration_merchant_support_email (str, optional): Support email address for customer inquiries.
+- configuration_merchant_support_phone (str, optional): Support phone number for customer inquiries (e.g. +1 647 111 1111).
+- configuration_merchant_support_url (str, optional): Support URL for customer inquiries.
+- configuration_merchant_support_address_street_address (str, optional): Support address street address (including apartment, suite, etc.).
+- configuration_merchant_support_address_city (str, optional): Support address city, district, suburb, town, or village.
+- configuration_merchant_support_address_state (str, optional): Support address state, county, province, or region.
+- configuration_merchant_support_address_postal_code (str, optional): Support address ZIP or postal code.
+- configuration_merchant_support_address_country (str, optional): Support address two-letter country code (ISO 3166-1 alpha-2).
+- configuration_merchant_card_payment_capability_requested (bool, optional): Whether card payment capability is requested for this merchant.
 `;
 
 export const createAccountParameters = (
@@ -403,6 +415,65 @@ export const createAccountParameters = (
       .boolean()
       .optional()
       .describe('Whether to decline charges that fail CVC checks'),
+    configuration_merchant_mcc: z
+      .string()
+      .length(4)
+      .regex(/^\d{4}$/)
+      .optional()
+      .describe('4-digit Merchant Category Code (MCC)'),
+    configuration_merchant_statement_descriptor: z
+      .string()
+      .max(22)
+      .optional()
+      .describe('Statement descriptor (max 22 characters)'),
+    configuration_merchant_statement_descriptor_prefix: z
+      .string()
+      .max(10)
+      .optional()
+      .describe('Statement descriptor prefix (max 10 characters)'),
+    configuration_merchant_support_email: z
+      .string()
+      .email()
+      .optional()
+      .describe('Support email address for customer inquiries'),
+    configuration_merchant_support_phone: z
+      .string()
+      .optional()
+      .describe('Support phone number for customer inquiries'),
+    configuration_merchant_support_url: z
+      .string()
+      .url()
+      .optional()
+      .describe('Support URL for customer inquiries'),
+    configuration_merchant_support_address_street_address: z
+      .string()
+      .optional()
+      .describe(
+        'Support address street address (including apartment, suite, etc.)'
+      ),
+    configuration_merchant_support_address_city: z
+      .string()
+      .optional()
+      .describe('Support address city, district, suburb, town, or village'),
+    configuration_merchant_support_address_state: z
+      .string()
+      .optional()
+      .describe('Support address state, county, province, or region'),
+    configuration_merchant_support_address_postal_code: z
+      .string()
+      .optional()
+      .describe('Support address ZIP or postal code'),
+    configuration_merchant_support_address_country: z
+      .string()
+      .length(2)
+      .optional()
+      .describe('Support address two-letter country code (ISO 3166-1 alpha-2)'),
+    configuration_merchant_card_payment_capability_requested: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether card payment capability is requested for this merchant'
+      ),
   });
 
 export const createAccountAnnotations = () => ({
@@ -466,6 +537,26 @@ export const createAccount = async (
         configurationMerchantCardPaymentsDeclineOnAvsFailure,
       configuration_merchant_card_payments_decline_on_cvc_failure:
         configurationMerchantCardPaymentsDeclineOnCvcFailure,
+      configuration_merchant_mcc: configurationMerchantMcc,
+      configuration_merchant_statement_descriptor:
+        configurationMerchantStatementDescriptor,
+      configuration_merchant_statement_descriptor_prefix:
+        configurationMerchantStatementDescriptorPrefix,
+      configuration_merchant_support_email: configurationMerchantSupportEmail,
+      configuration_merchant_support_phone: configurationMerchantSupportPhone,
+      configuration_merchant_support_url: configurationMerchantSupportUrl,
+      configuration_merchant_support_address_street_address:
+        configurationMerchantSupportAddressStreetAddress,
+      configuration_merchant_support_address_city:
+        configurationMerchantSupportAddressCity,
+      configuration_merchant_support_address_state:
+        configurationMerchantSupportAddressState,
+      configuration_merchant_support_address_postal_code:
+        configurationMerchantSupportAddressPostalCode,
+      configuration_merchant_support_address_country:
+        configurationMerchantSupportAddressCountry,
+      configuration_merchant_card_payment_capability_requested:
+        configurationMerchantCardPaymentCapabilityRequested,
       ...otherParams
     } = params;
 
@@ -735,7 +826,19 @@ export const createAccount = async (
       configurationMerchantBrandingSecondaryColor !== undefined ||
       configurationMerchantBacsDebitPaymentsDisplayName !== undefined ||
       configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined ||
-      configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+      configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined ||
+      configurationMerchantMcc !== undefined ||
+      configurationMerchantStatementDescriptor !== undefined ||
+      configurationMerchantStatementDescriptorPrefix !== undefined ||
+      configurationMerchantSupportEmail !== undefined ||
+      configurationMerchantSupportPhone !== undefined ||
+      configurationMerchantSupportUrl !== undefined ||
+      configurationMerchantSupportAddressStreetAddress !== undefined ||
+      configurationMerchantSupportAddressCity !== undefined ||
+      configurationMerchantSupportAddressState !== undefined ||
+      configurationMerchantSupportAddressPostalCode !== undefined ||
+      configurationMerchantSupportAddressCountry !== undefined ||
+      configurationMerchantCardPaymentCapabilityRequested !== undefined
     ) {
       accountData.configuration =
         {} as Stripe.V2.Core.AccountCreateParams.Configuration;
@@ -745,7 +848,19 @@ export const createAccount = async (
         configurationMerchantBrandingSecondaryColor !== undefined ||
         configurationMerchantBacsDebitPaymentsDisplayName !== undefined ||
         configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined ||
-        configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+        configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined ||
+        configurationMerchantMcc !== undefined ||
+        configurationMerchantStatementDescriptor !== undefined ||
+        configurationMerchantStatementDescriptorPrefix !== undefined ||
+        configurationMerchantSupportEmail !== undefined ||
+        configurationMerchantSupportPhone !== undefined ||
+        configurationMerchantSupportUrl !== undefined ||
+        configurationMerchantSupportAddressStreetAddress !== undefined ||
+        configurationMerchantSupportAddressCity !== undefined ||
+        configurationMerchantSupportAddressState !== undefined ||
+        configurationMerchantSupportAddressPostalCode !== undefined ||
+        configurationMerchantSupportAddressCountry !== undefined ||
+        configurationMerchantCardPaymentCapabilityRequested !== undefined
       ) {
         accountData.configuration.merchant =
           {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant;
@@ -798,6 +913,100 @@ export const createAccount = async (
               cvc_failure: configurationMerchantCardPaymentsDeclineOnCvcFailure,
             };
           }
+        }
+
+        if (configurationMerchantMcc !== undefined) {
+          accountData.configuration.merchant.mcc = configurationMerchantMcc;
+        }
+
+        if (
+          configurationMerchantStatementDescriptor !== undefined ||
+          configurationMerchantStatementDescriptorPrefix !== undefined
+        ) {
+          accountData.configuration.merchant.statement_descriptor =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.StatementDescriptor;
+
+          accountData.configuration.merchant.statement_descriptor.descriptor =
+            configurationMerchantStatementDescriptor;
+
+          accountData.configuration.merchant.statement_descriptor.prefix =
+            configurationMerchantStatementDescriptorPrefix;
+        }
+
+        if (
+          configurationMerchantSupportEmail !== undefined ||
+          configurationMerchantSupportPhone !== undefined ||
+          configurationMerchantSupportUrl !== undefined ||
+          configurationMerchantSupportAddressStreetAddress !== undefined ||
+          configurationMerchantSupportAddressCity !== undefined ||
+          configurationMerchantSupportAddressState !== undefined ||
+          configurationMerchantSupportAddressPostalCode !== undefined ||
+          configurationMerchantSupportAddressCountry !== undefined
+        ) {
+          accountData.configuration.merchant.support =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.Support;
+
+          if (configurationMerchantSupportEmail !== undefined) {
+            accountData.configuration.merchant.support.email =
+              configurationMerchantSupportEmail;
+          }
+
+          if (configurationMerchantSupportPhone !== undefined) {
+            accountData.configuration.merchant.support.phone =
+              configurationMerchantSupportPhone;
+          }
+
+          if (configurationMerchantSupportUrl !== undefined) {
+            accountData.configuration.merchant.support.url =
+              configurationMerchantSupportUrl;
+          }
+
+          if (
+            configurationMerchantSupportAddressStreetAddress !== undefined ||
+            configurationMerchantSupportAddressCity !== undefined ||
+            configurationMerchantSupportAddressState !== undefined ||
+            configurationMerchantSupportAddressPostalCode !== undefined ||
+            configurationMerchantSupportAddressCountry !== undefined
+          ) {
+            accountData.configuration.merchant.support.address =
+              {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.Support.Address;
+
+            if (
+              configurationMerchantSupportAddressStreetAddress !== undefined
+            ) {
+              accountData.configuration.merchant.support.address.line1 =
+                configurationMerchantSupportAddressStreetAddress;
+            }
+
+            if (configurationMerchantSupportAddressCity !== undefined) {
+              accountData.configuration.merchant.support.address.city =
+                configurationMerchantSupportAddressCity;
+            }
+
+            if (configurationMerchantSupportAddressState !== undefined) {
+              accountData.configuration.merchant.support.address.state =
+                configurationMerchantSupportAddressState;
+            }
+
+            if (configurationMerchantSupportAddressPostalCode !== undefined) {
+              accountData.configuration.merchant.support.address.postal_code =
+                configurationMerchantSupportAddressPostalCode;
+            }
+
+            if (configurationMerchantSupportAddressCountry !== undefined) {
+              accountData.configuration.merchant.support.address.country =
+                configurationMerchantSupportAddressCountry;
+            }
+          }
+        }
+
+        if (configurationMerchantCardPaymentCapabilityRequested !== undefined) {
+          accountData.configuration.merchant.capabilities =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.Capabilities;
+
+          accountData.configuration.merchant.capabilities.card_payments = {
+            requested: configurationMerchantCardPaymentCapabilityRequested,
+          };
         }
       }
     }
