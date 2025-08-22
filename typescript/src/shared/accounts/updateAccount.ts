@@ -24,7 +24,7 @@ It takes the following arguments:
 - identity_business_details_registered_name (str, optional): The business legal name.
 - identity_business_details_doing_business_as (str, optional): The name which is used by the business (DBA name).
 - identity_business_details_structure (str, optional): The legal structure of the business. Examples: 'llc', 'corporation', 'partnership', etc.
-- identity_business_details_phone (str, optional): The phone number of the business entity (e.g. +1 647 111 1111).
+- identity_business_details_phone (str, optional): The phone number of the business entity. Must include spaces exactly as shown (e.g. +1 647 111 1111).
 - identity_business_details_url (str, optional): The business's publicly available website.
 - identity_business_details_product_description (str, optional): Internal-only description of the product sold or service provided by the business.
 - identity_business_details_estimated_worker_count (int, optional): An estimated upper bound of employees, contractors, vendors, etc. currently working for the business.
@@ -40,7 +40,7 @@ It takes the following arguments:
 - identity_individual_given_name (str, optional): The individual's given name (first name).
 - identity_individual_surname (str, optional): The individual's surname (last name or family name).
 - identity_individual_email (str, optional): The individual's email address.
-- identity_individual_phone (str, optional): The individual's phone number (e.g. +1 647 111 1111).
+- identity_individual_phone (str, optional): The individual's phone number. Must include spaces exactly as shown (e.g. +1 647 111 1111).
 - identity_individual_date_of_birth (str, optional): The individual's date of birth in YYYY-MM-DD format.
 - identity_individual_address_street_address (str, optional): Individual's street address (including apartment, suite, etc.).
 - identity_individual_address_city (str, optional): Individual's city, district, suburb, town, or village.
@@ -57,7 +57,7 @@ It takes the following arguments:
 - configuration_merchant_statement_descriptor (str, optional): Statement descriptor (max 22 characters).
 - configuration_merchant_statement_descriptor_prefix (str, optional): Statement descriptor prefix (max 10 characters).
 - configuration_merchant_support_email (str, optional): Support email address for customer inquiries.
-- configuration_merchant_support_phone (str, optional): Support phone number for customer inquiries (e.g. +1 647 111 1111).
+- configuration_merchant_support_phone (str, optional): Support phone number for customer inquiries. Must include spaces exactly as shown (e.g. +1 647 111 1111).
 - configuration_merchant_support_url (str, optional): Support URL for customer inquiries.
 - configuration_merchant_support_address_street_address (str, optional): Support address street address (including apartment, suite, etc.).
 - configuration_merchant_support_address_city (str, optional): Support address city, district, suburb, town, or village.
