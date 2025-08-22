@@ -1,5 +1,6 @@
 import {z} from 'zod';
 
+import createAccountTool from '@/shared/accounts/createAccount';
 import createCustomerTool from '@/shared/customers/createCustomer';
 import listCustomersTool from '@/shared/customers/listCustomers';
 import createProductTool from '@/shared/products/createProduct';
@@ -47,6 +48,7 @@ export type Tool = {
 };
 
 const tools = (context: Context): Tool[] => [
+  createAccountTool(context),
   createCustomerTool(context),
   listCustomersTool(context),
   createProductTool(context),

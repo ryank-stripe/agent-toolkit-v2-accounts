@@ -4,6 +4,7 @@ import type {Tool} from './tools';
 // be used in conjunction with Restricted API Keys. Setting a permission to false
 // prevents the related "tool" from being considered.
 export type Object =
+  | 'accounts'
   | 'customers'
   | 'disputes'
   | 'invoices'
