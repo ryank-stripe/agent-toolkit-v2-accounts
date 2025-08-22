@@ -4,86 +4,13 @@ import Stripe from 'stripe';
 import {z} from 'zod';
 import type {Context} from '@/shared/configuration';
 import type {Tool} from '@/shared/tools';
+import {commonFields} from './commonFields';
 
 export const updateAccountPrompt = (_context: Context = {}) => `
 This tool will update a V2 account in Stripe.
 
 It takes the following arguments:
-- account_id (str, required): The ID of the account to update.
-- display_name (str, optional): The display name for the account.
-- contact_email (str, optional): The contact email address for the account.
-- dashboard (str, optional): The Stripe dashboard access level. Either 'express', 'full', or 'none'.
-- defaults_currency (str, optional): Three-letter ISO currency code for the account's default currency.
-- defaults_locales (array, optional): Array of preferred locales (languages) ordered by preference. Examples: ['en-US'], ['en-US', 'es-ES'].
-- defaults_responsibilities_fees_collector (str, optional): Who collects fees from this account. Either 'application' or 'stripe'.
-- defaults_responsibilities_losses_collector (str, optional): Who is responsible for losses when this account can't pay back negative balances. Either 'application' or 'stripe'.
-- include (array, optional): Additional fields to include in the response. Examples: ['configuration.customer'], ['identity', 'defaults'].
-- metadata (object, optional): Set of key-value pairs for storing additional information about the account. Example: {'order_id': '12345', 'customer_type': 'premium'}.
-- identity_country (str, optional): Two-letter country code (ISO 3166-1 alpha-2) where the account holder resides or business is established.
-- identity_entity_type (str, optional): The entity type. Either 'company', 'government_entity', 'individual', or 'non_profit'.
-- identity_business_details_registered_name (str, optional): The business legal name.
-- identity_business_details_doing_business_as (str, optional): The name which is used by the business (DBA name).
-- identity_business_details_structure (str, optional): The legal structure of the business. Examples: 'llc', 'corporation', 'partnership', etc.
-- identity_business_details_phone (str, optional): The phone number of the business entity. Must include spaces exactly as shown (e.g. +1 647 111 1111).
-- identity_business_details_url (str, optional): The business's publicly available website.
-- identity_business_details_product_description (str, optional): Internal-only description of the product sold or service provided by the business.
-- identity_business_details_estimated_worker_count (int, optional): An estimated upper bound of employees, contractors, vendors, etc. currently working for the business.
-- identity_business_details_annual_revenue_amount (int, optional): The annual revenue amount in the smallest currency unit (e.g., cents for USD).
-- identity_business_details_monthly_estimated_revenue_amount (int, optional): The monthly estimated revenue amount in the smallest currency unit.
-- identity_business_details_address_street_address (str, optional): Street address (including apartment, suite, unit, building, floor, etc.).
-- identity_business_details_address_city (str, optional): City, district, suburb, town, or village.
-- identity_business_details_address_state (str, optional): State, county, province, or region.
-- identity_business_details_address_postal_code (str, optional): ZIP or postal code.
-- identity_business_details_address_country (str, optional): Two-letter country code (ISO 3166-1 alpha-2).
-- identity_business_details_id_number_type (str, optional): The type of identification number. Examples: 'tax_id', 'vat_id', 'registration_number', etc.
-- identity_business_details_id_number_value (str, optional): The identification number value.
-- identity_individual_given_name (str, optional): The individual's given name (first name).
-- identity_individual_surname (str, optional): The individual's surname (last name or family name).
-- identity_individual_email (str, optional): The individual's email address.
-- identity_individual_phone (str, optional): The individual's phone number. Must include spaces exactly as shown (e.g. +1 647 111 1111).
-- identity_individual_date_of_birth (str, optional): The individual's date of birth in YYYY-MM-DD format.
-- identity_individual_address_street_address (str, optional): Individual's street address (including apartment, suite, etc.).
-- identity_individual_address_city (str, optional): Individual's city, district, suburb, town, or village.
-- identity_individual_address_state (str, optional): Individual's state, county, province, or region.
-- identity_individual_address_postal_code (str, optional): Individual's ZIP or postal code.
-- identity_individual_address_country (str, optional): Individual's two-letter country code (ISO 3166-1 alpha-2).
-- identity_individual_nationalities (str, optional): Comma-separated list of two-letter country codes for the individual's nationalities. Example: 'US,CA'.
-- configuration_merchant_branding_primary_color (str, optional): Primary brand color as a hex code (e.g., #1A73E8).
-- configuration_merchant_branding_secondary_color (str, optional): Secondary brand color as a hex code (e.g., #34A853).
-- configuration_merchant_bacs_debit_payments_display_name (str, optional): Display name for BACS debit payments.
-- configuration_merchant_card_payments_decline_on_avs_failure (bool, optional): Whether to decline charges that fail AVS checks.
-- configuration_merchant_card_payments_decline_on_cvc_failure (bool, optional): Whether to decline charges that fail CVC checks.
-- configuration_merchant_mcc (str, optional): 4-digit Merchant Category Code (MCC).
-- configuration_merchant_statement_descriptor (str, optional): Statement descriptor (max 22 characters).
-- configuration_merchant_statement_descriptor_prefix (str, optional): Statement descriptor prefix (max 10 characters).
-- configuration_merchant_support_email (str, optional): Support email address for customer inquiries.
-- configuration_merchant_support_phone (str, optional): Support phone number for customer inquiries. Must include spaces exactly as shown (e.g. +1 647 111 1111).
-- configuration_merchant_support_url (str, optional): Support URL for customer inquiries.
-- configuration_merchant_support_address_street_address (str, optional): Support address street address (including apartment, suite, etc.).
-- configuration_merchant_support_address_city (str, optional): Support address city, district, suburb, town, or village.
-- configuration_merchant_support_address_state (str, optional): Support address state, county, province, or region.
-- configuration_merchant_support_address_postal_code (str, optional): Support address ZIP or postal code.
-- configuration_merchant_support_address_country (str, optional): Support address two-letter country code (ISO 3166-1 alpha-2).
-- configuration_merchant_card_payment_capability_requested (bool, optional): Whether card payment capability is requested for this merchant.
-- configuration_customer_automatic_indirect_tax_exempt (str, optional): Tax exemption status for automatic indirect tax. Either 'none', 'exempt', or 'reverse'.
-- configuration_customer_automatic_indirect_tax_ip_address (str, optional): IP address to use for automatic indirect tax location determination.
-- configuration_customer_automatic_indirect_tax_location_source (str, optional): Source for automatic indirect tax location. Either 'identity_address', 'ip_address', or 'shipping_address'.
-- configuration_customer_billing_invoice_footer (str, optional): Default footer to be displayed on invoices for this customer.
-- configuration_customer_billing_invoice_next_sequence (int, optional): The sequence to be used on the customer's next invoice. Defaults to 1.
-- configuration_customer_billing_invoice_prefix (str, optional): The prefix for the customer used to generate unique invoice numbers. Must be 3–12 uppercase letters or numbers.
-- configuration_customer_shipping_name (str, optional): Customer name for shipping information. Appears on invoices emailed to this customer.
-- configuration_customer_shipping_phone (str, optional): Customer phone number for shipping (including extension).
-- configuration_customer_shipping_address_line1 (str, optional): Shipping address line 1 (e.g., street, PO Box, or company name).
-- configuration_customer_shipping_address_line2 (str, optional): Shipping address line 2 (e.g., apartment, suite, unit, or building).
-- configuration_customer_shipping_address_city (str, optional): Shipping address city, district, suburb, town, or village.
-- configuration_customer_shipping_address_state (str, optional): Shipping address state, county, province, or region.
-- configuration_customer_shipping_address_postal_code (str, optional): Shipping address ZIP or postal code.
-- configuration_customer_shipping_address_country (str, optional): Shipping address two-letter country code (ISO 3166-1 alpha-2).
-- configuration_customer_capability_automatic_indirect_tax_requested (bool, optional): Whether to request automatic indirect tax capability for this customer. Generates requirements for enabling automatic indirect tax calculation on invoices or subscriptions.
-- configuration_recipient_capability_bank_accounts_local_requested (bool, optional): Whether to request local bank account capability for this recipient. Enables OutboundPayments to linked bank accounts over local networks.
-- configuration_recipient_capability_bank_accounts_wire_requested (bool, optional): Whether to request wire bank account capability for this recipient. Enables OutboundPayments to linked bank accounts over wire.
-- configuration_recipient_capability_cards_requested (bool, optional): Whether to request cards capability for this recipient. Enables OutboundPayments to a card linked to this Account.
-- configuration_recipient_capability_stripe_balance_stripe_transfers_requested (bool, optional): Whether to request stripe transfers capability for this recipient. Allows the account to receive /v1/transfers into their Stripe Balance.
+${commonFields}
 `;
 
 export const updateAccountParameters = (
@@ -1431,7 +1358,7 @@ export const updateAccount = async (
 
     return account;
   } catch (error) {
-    console.log('ERROR:\n', (error as any).userMessage);
+    console.log('ERROR:\n', (error as any).raw.message);
     return error;
   }
 };
