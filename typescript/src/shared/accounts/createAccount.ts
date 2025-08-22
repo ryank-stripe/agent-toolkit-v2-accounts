@@ -64,6 +64,25 @@ It takes the following arguments:
 - configuration_merchant_support_address_postal_code (str, optional): Support address ZIP or postal code.
 - configuration_merchant_support_address_country (str, optional): Support address two-letter country code (ISO 3166-1 alpha-2).
 - configuration_merchant_card_payment_capability_requested (bool, optional): Whether card payment capability is requested for this merchant.
+- configuration_customer_automatic_indirect_tax_exempt (str, optional): Tax exemption status for automatic indirect tax. Either 'none', 'exempt', or 'reverse'.
+- configuration_customer_automatic_indirect_tax_ip_address (str, optional): IP address to use for automatic indirect tax location determination.
+- configuration_customer_automatic_indirect_tax_location_source (str, optional): Source for automatic indirect tax location. Either 'identity_address', 'ip_address', or 'shipping_address'.
+- configuration_customer_billing_invoice_footer (str, optional): Default footer to be displayed on invoices for this customer.
+- configuration_customer_billing_invoice_next_sequence (int, optional): The sequence to be used on the customer's next invoice. Defaults to 1.
+- configuration_customer_billing_invoice_prefix (str, optional): The prefix for the customer used to generate unique invoice numbers. Must be 3–12 uppercase letters or numbers.
+- configuration_customer_shipping_name (str, optional): Customer name for shipping information. Appears on invoices emailed to this customer.
+- configuration_customer_shipping_phone (str, optional): Customer phone number for shipping (including extension).
+- configuration_customer_shipping_address_line1 (str, optional): Shipping address line 1 (e.g., street, PO Box, or company name).
+- configuration_customer_shipping_address_line2 (str, optional): Shipping address line 2 (e.g., apartment, suite, unit, or building).
+- configuration_customer_shipping_address_city (str, optional): Shipping address city, district, suburb, town, or village.
+- configuration_customer_shipping_address_state (str, optional): Shipping address state, county, province, or region.
+- configuration_customer_shipping_address_postal_code (str, optional): Shipping address ZIP or postal code.
+- configuration_customer_shipping_address_country (str, optional): Shipping address two-letter country code (ISO 3166-1 alpha-2).
+- configuration_customer_capability_automatic_indirect_tax_requested (bool, optional): Whether to request automatic indirect tax capability for this customer. Generates requirements for enabling automatic indirect tax calculation on invoices or subscriptions.
+- configuration_recipient_capability_bank_accounts_local_requested (bool, optional): Whether to request local bank account capability for this recipient. Enables OutboundPayments to linked bank accounts over local networks.
+- configuration_recipient_capability_bank_accounts_wire_requested (bool, optional): Whether to request wire bank account capability for this recipient. Enables OutboundPayments to linked bank accounts over wire.
+- configuration_recipient_capability_cards_requested (bool, optional): Whether to request cards capability for this recipient. Enables OutboundPayments to a card linked to this Account.
+- configuration_recipient_capability_stripe_balance_stripe_transfers_requested (bool, optional): Whether to request stripe transfers capability for this recipient. Allows the account to receive /v1/transfers into their Stripe Balance.
 `;
 
 export const createAccountParameters = (
@@ -474,6 +493,109 @@ export const createAccountParameters = (
       .describe(
         'Whether card payment capability is requested for this merchant'
       ),
+    configuration_customer_automatic_indirect_tax_exempt: z
+      .enum(['none', 'exempt', 'reverse'])
+      .optional()
+      .describe(
+        'Tax exemption status for automatic indirect tax. Either none, exempt, or reverse'
+      ),
+    configuration_customer_automatic_indirect_tax_ip_address: z
+      .string()
+      .optional()
+      .describe(
+        'IP address to use for automatic indirect tax location determination'
+      ),
+    configuration_customer_automatic_indirect_tax_location_source: z
+      .enum(['identity_address', 'ip_address', 'shipping_address'])
+      .optional()
+      .describe('Source for automatic indirect tax location determination'),
+    configuration_customer_billing_invoice_footer: z
+      .string()
+      .optional()
+      .describe('Default footer to be displayed on invoices for this customer'),
+    configuration_customer_billing_invoice_next_sequence: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe("The sequence to be used on the customer's next invoice"),
+    configuration_customer_billing_invoice_prefix: z
+      .string()
+      .min(3)
+      .max(12)
+      .regex(/^[A-Z0-9]+$/)
+      .optional()
+      .describe(
+        'The prefix for the customer used to generate unique invoice numbers'
+      ),
+    configuration_customer_shipping_name: z
+      .string()
+      .optional()
+      .describe('Customer name for shipping information'),
+    configuration_customer_shipping_phone: z
+      .string()
+      .optional()
+      .describe('Customer phone number for shipping (including extension)'),
+    configuration_customer_shipping_address_line1: z
+      .string()
+      .optional()
+      .describe(
+        'Shipping address line 1 (e.g., street, PO Box, or company name)'
+      ),
+    configuration_customer_shipping_address_line2: z
+      .string()
+      .optional()
+      .describe(
+        'Shipping address line 2 (e.g., apartment, suite, unit, or building)'
+      ),
+    configuration_customer_shipping_address_city: z
+      .string()
+      .optional()
+      .describe('Shipping address city, district, suburb, town, or village'),
+    configuration_customer_shipping_address_state: z
+      .string()
+      .optional()
+      .describe('Shipping address state, county, province, or region'),
+    configuration_customer_shipping_address_postal_code: z
+      .string()
+      .optional()
+      .describe('Shipping address ZIP or postal code'),
+    configuration_customer_shipping_address_country: z
+      .string()
+      .length(2)
+      .optional()
+      .describe(
+        'Shipping address two-letter country code (ISO 3166-1 alpha-2)'
+      ),
+    configuration_customer_capability_automatic_indirect_tax_requested: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to request automatic indirect tax capability for this customer'
+      ),
+    configuration_recipient_capability_bank_accounts_local_requested: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to request local bank account capability for this recipient'
+      ),
+    configuration_recipient_capability_bank_accounts_wire_requested: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to request wire bank account capability for this recipient'
+      ),
+    configuration_recipient_capability_cards_requested: z
+      .boolean()
+      .optional()
+      .describe('Whether to request cards capability for this recipient'),
+    configuration_recipient_capability_stripe_balance_stripe_transfers_requested:
+      z
+        .boolean()
+        .optional()
+        .describe(
+          'Whether to request stripe transfers capability for this recipient'
+        ),
   });
 
 export const createAccountAnnotations = () => ({
@@ -557,6 +679,42 @@ export const createAccount = async (
         configurationMerchantSupportAddressCountry,
       configuration_merchant_card_payment_capability_requested:
         configurationMerchantCardPaymentCapabilityRequested,
+      configuration_customer_automatic_indirect_tax_exempt:
+        configurationCustomerAutomaticIndirectTaxExempt,
+      configuration_customer_automatic_indirect_tax_ip_address:
+        configurationCustomerAutomaticIndirectTaxIpAddress,
+      configuration_customer_automatic_indirect_tax_location_source:
+        configurationCustomerAutomaticIndirectTaxLocationSource,
+      configuration_customer_billing_invoice_footer:
+        configurationCustomerBillingInvoiceFooter,
+      configuration_customer_billing_invoice_next_sequence:
+        configurationCustomerBillingInvoiceNextSequence,
+      configuration_customer_billing_invoice_prefix:
+        configurationCustomerBillingInvoicePrefix,
+      configuration_customer_shipping_name: configurationCustomerShippingName,
+      configuration_customer_shipping_phone: configurationCustomerShippingPhone,
+      configuration_customer_shipping_address_line1:
+        configurationCustomerShippingAddressLine1,
+      configuration_customer_shipping_address_line2:
+        configurationCustomerShippingAddressLine2,
+      configuration_customer_shipping_address_city:
+        configurationCustomerShippingAddressCity,
+      configuration_customer_shipping_address_state:
+        configurationCustomerShippingAddressState,
+      configuration_customer_shipping_address_postal_code:
+        configurationCustomerShippingAddressPostalCode,
+      configuration_customer_shipping_address_country:
+        configurationCustomerShippingAddressCountry,
+      configuration_customer_capability_automatic_indirect_tax_requested:
+        configurationCustomerCapabilityAutomaticIndirectTaxRequested,
+      configuration_recipient_capability_bank_accounts_local_requested:
+        configurationRecipientCapabilityBankAccountsLocalRequested,
+      configuration_recipient_capability_bank_accounts_wire_requested:
+        configurationRecipientCapabilityBankAccountsWireRequested,
+      configuration_recipient_capability_cards_requested:
+        configurationRecipientCapabilityCardsRequested,
+      configuration_recipient_capability_stripe_balance_stripe_transfers_requested:
+        configurationRecipientCapabilityStripeBalanceStripeTransfersRequested,
       ...otherParams
     } = params;
 
@@ -838,7 +996,29 @@ export const createAccount = async (
       configurationMerchantSupportAddressState !== undefined ||
       configurationMerchantSupportAddressPostalCode !== undefined ||
       configurationMerchantSupportAddressCountry !== undefined ||
-      configurationMerchantCardPaymentCapabilityRequested !== undefined
+      configurationMerchantCardPaymentCapabilityRequested !== undefined ||
+      configurationCustomerAutomaticIndirectTaxExempt !== undefined ||
+      configurationCustomerAutomaticIndirectTaxIpAddress !== undefined ||
+      configurationCustomerAutomaticIndirectTaxLocationSource !== undefined ||
+      configurationCustomerBillingInvoiceFooter !== undefined ||
+      configurationCustomerBillingInvoiceNextSequence !== undefined ||
+      configurationCustomerBillingInvoicePrefix !== undefined ||
+      configurationCustomerShippingName !== undefined ||
+      configurationCustomerShippingPhone !== undefined ||
+      configurationCustomerShippingAddressLine1 !== undefined ||
+      configurationCustomerShippingAddressLine2 !== undefined ||
+      configurationCustomerShippingAddressCity !== undefined ||
+      configurationCustomerShippingAddressState !== undefined ||
+      configurationCustomerShippingAddressPostalCode !== undefined ||
+      configurationCustomerShippingAddressCountry !== undefined ||
+      configurationCustomerCapabilityAutomaticIndirectTaxRequested !==
+        undefined ||
+      configurationRecipientCapabilityBankAccountsLocalRequested !==
+        undefined ||
+      configurationRecipientCapabilityBankAccountsWireRequested !== undefined ||
+      configurationRecipientCapabilityCardsRequested !== undefined ||
+      configurationRecipientCapabilityStripeBalanceStripeTransfersRequested !==
+        undefined
     ) {
       accountData.configuration =
         {} as Stripe.V2.Core.AccountCreateParams.Configuration;
@@ -1007,6 +1187,232 @@ export const createAccount = async (
           accountData.configuration.merchant.capabilities.card_payments = {
             requested: configurationMerchantCardPaymentCapabilityRequested,
           };
+        }
+      }
+
+      if (
+        configurationCustomerAutomaticIndirectTaxExempt !== undefined ||
+        configurationCustomerAutomaticIndirectTaxIpAddress !== undefined ||
+        configurationCustomerAutomaticIndirectTaxLocationSource !== undefined ||
+        configurationCustomerBillingInvoiceFooter !== undefined ||
+        configurationCustomerBillingInvoiceNextSequence !== undefined ||
+        configurationCustomerBillingInvoicePrefix !== undefined ||
+        configurationCustomerShippingName !== undefined ||
+        configurationCustomerShippingPhone !== undefined ||
+        configurationCustomerShippingAddressLine1 !== undefined ||
+        configurationCustomerShippingAddressLine2 !== undefined ||
+        configurationCustomerShippingAddressCity !== undefined ||
+        configurationCustomerShippingAddressState !== undefined ||
+        configurationCustomerShippingAddressPostalCode !== undefined ||
+        configurationCustomerShippingAddressCountry !== undefined ||
+        configurationCustomerCapabilityAutomaticIndirectTaxRequested !==
+          undefined
+      ) {
+        accountData.configuration.customer =
+          {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer;
+
+        if (
+          configurationCustomerAutomaticIndirectTaxExempt !== undefined ||
+          configurationCustomerAutomaticIndirectTaxIpAddress !== undefined ||
+          configurationCustomerAutomaticIndirectTaxLocationSource !== undefined
+        ) {
+          accountData.configuration.customer.automatic_indirect_tax =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer.AutomaticIndirectTax;
+
+          if (configurationCustomerAutomaticIndirectTaxExempt !== undefined) {
+            accountData.configuration.customer.automatic_indirect_tax.exempt =
+              configurationCustomerAutomaticIndirectTaxExempt;
+          }
+
+          if (
+            configurationCustomerAutomaticIndirectTaxIpAddress !== undefined
+          ) {
+            accountData.configuration.customer.automatic_indirect_tax.ip_address =
+              configurationCustomerAutomaticIndirectTaxIpAddress;
+          }
+
+          if (
+            configurationCustomerAutomaticIndirectTaxLocationSource !==
+            undefined
+          ) {
+            accountData.configuration.customer.automatic_indirect_tax.location_source =
+              configurationCustomerAutomaticIndirectTaxLocationSource;
+          }
+        }
+
+        if (
+          configurationCustomerBillingInvoiceFooter !== undefined ||
+          configurationCustomerBillingInvoiceNextSequence !== undefined ||
+          configurationCustomerBillingInvoicePrefix !== undefined
+        ) {
+          accountData.configuration.customer.billing =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer.Billing;
+
+          accountData.configuration.customer.billing.invoice =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer.Billing.Invoice;
+
+          if (configurationCustomerBillingInvoiceFooter !== undefined) {
+            accountData.configuration.customer.billing.invoice.footer =
+              configurationCustomerBillingInvoiceFooter;
+          }
+
+          if (configurationCustomerBillingInvoiceNextSequence !== undefined) {
+            accountData.configuration.customer.billing.invoice.next_sequence =
+              configurationCustomerBillingInvoiceNextSequence;
+          }
+
+          if (configurationCustomerBillingInvoicePrefix !== undefined) {
+            accountData.configuration.customer.billing.invoice.prefix =
+              configurationCustomerBillingInvoicePrefix;
+          }
+        }
+
+        if (
+          configurationCustomerShippingName !== undefined ||
+          configurationCustomerShippingPhone !== undefined ||
+          configurationCustomerShippingAddressLine1 !== undefined ||
+          configurationCustomerShippingAddressLine2 !== undefined ||
+          configurationCustomerShippingAddressCity !== undefined ||
+          configurationCustomerShippingAddressState !== undefined ||
+          configurationCustomerShippingAddressPostalCode !== undefined ||
+          configurationCustomerShippingAddressCountry !== undefined
+        ) {
+          accountData.configuration.customer.shipping =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer.Shipping;
+
+          if (configurationCustomerShippingName !== undefined) {
+            accountData.configuration.customer.shipping.name =
+              configurationCustomerShippingName;
+          }
+
+          if (configurationCustomerShippingPhone !== undefined) {
+            accountData.configuration.customer.shipping.phone =
+              configurationCustomerShippingPhone;
+          }
+
+          if (
+            configurationCustomerShippingAddressLine1 !== undefined ||
+            configurationCustomerShippingAddressLine2 !== undefined ||
+            configurationCustomerShippingAddressCity !== undefined ||
+            configurationCustomerShippingAddressState !== undefined ||
+            configurationCustomerShippingAddressPostalCode !== undefined ||
+            configurationCustomerShippingAddressCountry !== undefined
+          ) {
+            accountData.configuration.customer.shipping.address =
+              {} as Stripe.AddressParam;
+
+            if (configurationCustomerShippingAddressLine1 !== undefined) {
+              accountData.configuration.customer.shipping.address.line1 =
+                configurationCustomerShippingAddressLine1;
+            }
+
+            if (configurationCustomerShippingAddressLine2 !== undefined) {
+              accountData.configuration.customer.shipping.address.line2 =
+                configurationCustomerShippingAddressLine2;
+            }
+
+            if (configurationCustomerShippingAddressCity !== undefined) {
+              accountData.configuration.customer.shipping.address.city =
+                configurationCustomerShippingAddressCity;
+            }
+
+            if (configurationCustomerShippingAddressState !== undefined) {
+              accountData.configuration.customer.shipping.address.state =
+                configurationCustomerShippingAddressState;
+            }
+
+            if (configurationCustomerShippingAddressPostalCode !== undefined) {
+              accountData.configuration.customer.shipping.address.postal_code =
+                configurationCustomerShippingAddressPostalCode;
+            }
+
+            if (configurationCustomerShippingAddressCountry !== undefined) {
+              accountData.configuration.customer.shipping.address.country =
+                configurationCustomerShippingAddressCountry;
+            }
+          }
+        }
+
+        if (
+          configurationCustomerCapabilityAutomaticIndirectTaxRequested !==
+          undefined
+        ) {
+          accountData.configuration.customer.capabilities =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Customer.Capabilities;
+
+          accountData.configuration.customer.capabilities.automatic_indirect_tax =
+            {
+              requested:
+                configurationCustomerCapabilityAutomaticIndirectTaxRequested,
+            };
+        }
+      }
+
+      if (
+        configurationRecipientCapabilityBankAccountsLocalRequested !==
+          undefined ||
+        configurationRecipientCapabilityBankAccountsWireRequested !==
+          undefined ||
+        configurationRecipientCapabilityCardsRequested !== undefined ||
+        configurationRecipientCapabilityStripeBalanceStripeTransfersRequested !==
+          undefined
+      ) {
+        accountData.configuration.recipient =
+          {} as Stripe.V2.Core.AccountCreateParams.Configuration.Recipient;
+
+        accountData.configuration.recipient.capabilities =
+          {} as Stripe.V2.Core.AccountCreateParams.Configuration.Recipient.Capabilities;
+
+        if (
+          configurationRecipientCapabilityBankAccountsLocalRequested !==
+            undefined ||
+          configurationRecipientCapabilityBankAccountsWireRequested !==
+            undefined
+        ) {
+          accountData.configuration.recipient.capabilities.bank_accounts =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Recipient.Capabilities.BankAccounts;
+
+          if (
+            configurationRecipientCapabilityBankAccountsLocalRequested !==
+            undefined
+          ) {
+            accountData.configuration.recipient.capabilities.bank_accounts.local =
+              {
+                requested:
+                  configurationRecipientCapabilityBankAccountsLocalRequested,
+              };
+          }
+
+          if (
+            configurationRecipientCapabilityBankAccountsWireRequested !==
+            undefined
+          ) {
+            accountData.configuration.recipient.capabilities.bank_accounts.wire =
+              {
+                requested:
+                  configurationRecipientCapabilityBankAccountsWireRequested,
+              };
+          }
+        }
+
+        if (configurationRecipientCapabilityCardsRequested !== undefined) {
+          accountData.configuration.recipient.capabilities.cards = {
+            requested: configurationRecipientCapabilityCardsRequested,
+          };
+        }
+
+        if (
+          configurationRecipientCapabilityStripeBalanceStripeTransfersRequested !==
+          undefined
+        ) {
+          accountData.configuration.recipient.capabilities.stripe_balance =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Recipient.Capabilities.StripeBalance;
+
+          accountData.configuration.recipient.capabilities.stripe_balance.stripe_transfers =
+            {
+              requested:
+                configurationRecipientCapabilityStripeBalanceStripeTransfersRequested,
+            };
         }
       }
     }
