@@ -1427,7 +1427,7 @@ export const createAccount = async (
 
     return account;
   } catch (error) {
-    console.log('ERROR:\n', error);
+    console.log('ERROR:\n', (error as any).userMessage);
     return error;
   }
 };
