@@ -1,3 +1,5 @@
+/* eslint-disable max-depth */
+/* eslint-disable complexity */
 import Stripe from 'stripe';
 import {z} from 'zod';
 import type {Context} from '@/shared/configuration';
@@ -9,6 +11,47 @@ This tool will create a V2 account in Stripe.
 It takes the following arguments:
 - display_name (str, optional): The display name for the account.
 - contact_email (str, optional): The contact email address for the account.
+- dashboard (str, optional): The Stripe dashboard access level. Either 'express', 'full', or 'none'.
+- defaults_currency (str, optional): Three-letter ISO currency code for the account's default currency.
+- defaults_locales (array, optional): Array of preferred locales (languages) ordered by preference. Examples: ['en-US'], ['en-US', 'es-ES'].
+- defaults_responsibilities_fees_collector (str, optional): Who collects fees from this account. Either 'application' or 'stripe'.
+- defaults_responsibilities_losses_collector (str, optional): Who is responsible for losses when this account can't pay back negative balances. Either 'application' or 'stripe'.
+- include (array, optional): Additional fields to include in the response. Examples: ['configuration.customer'], ['identity', 'defaults'].
+- metadata (object, optional): Set of key-value pairs for storing additional information about the account. Example: {'order_id': '12345', 'customer_type': 'premium'}.
+- identity_country (str, optional): Two-letter country code (ISO 3166-1 alpha-2) where the account holder resides or business is established.
+- identity_entity_type (str, optional): The entity type. Either 'company', 'government_entity', 'individual', or 'non_profit'.
+- identity_business_details_registered_name (str, optional): The business legal name.
+- identity_business_details_doing_business_as (str, optional): The name which is used by the business (DBA name).
+- identity_business_details_structure (str, optional): The legal structure of the business. Examples: 'llc', 'corporation', 'partnership', etc.
+- identity_business_details_phone (str, optional): The phone number of the business entity.
+- identity_business_details_url (str, optional): The business's publicly available website.
+- identity_business_details_product_description (str, optional): Internal-only description of the product sold or service provided by the business.
+- identity_business_details_estimated_worker_count (int, optional): An estimated upper bound of employees, contractors, vendors, etc. currently working for the business.
+- identity_business_details_annual_revenue_amount (int, optional): The annual revenue amount in the smallest currency unit (e.g., cents for USD).
+- identity_business_details_monthly_estimated_revenue_amount (int, optional): The monthly estimated revenue amount in the smallest currency unit.
+- identity_business_details_address_street_address (str, optional): Street address (including apartment, suite, unit, building, floor, etc.).
+- identity_business_details_address_city (str, optional): City, district, suburb, town, or village.
+- identity_business_details_address_state (str, optional): State, county, province, or region.
+- identity_business_details_address_postal_code (str, optional): ZIP or postal code.
+- identity_business_details_address_country (str, optional): Two-letter country code (ISO 3166-1 alpha-2).
+- identity_business_details_id_number_type (str, optional): The type of identification number. Examples: 'tax_id', 'vat_id', 'registration_number', etc.
+- identity_business_details_id_number_value (str, optional): The identification number value.
+- identity_individual_given_name (str, optional): The individual's given name (first name).
+- identity_individual_surname (str, optional): The individual's surname (last name or family name).
+- identity_individual_email (str, optional): The individual's email address.
+- identity_individual_phone (str, optional): The individual's phone number.
+- identity_individual_date_of_birth (str, optional): The individual's date of birth in YYYY-MM-DD format.
+- identity_individual_address_street_address (str, optional): Individual's street address (including apartment, suite, etc.).
+- identity_individual_address_city (str, optional): Individual's city, district, suburb, town, or village.
+- identity_individual_address_state (str, optional): Individual's state, county, province, or region.
+- identity_individual_address_postal_code (str, optional): Individual's ZIP or postal code.
+- identity_individual_address_country (str, optional): Individual's two-letter country code (ISO 3166-1 alpha-2).
+- identity_individual_nationalities (str, optional): Comma-separated list of two-letter country codes for the individual's nationalities. Example: 'US,CA'.
+- configuration_merchant_branding_primary_color (str, optional): Primary brand color as a hex code (e.g., #1A73E8).
+- configuration_merchant_branding_secondary_color (str, optional): Secondary brand color as a hex code (e.g., #34A853).
+- configuration_merchant_bacs_debit_payments_display_name (str, optional): Display name for BACS debit payments.
+- configuration_merchant_card_payments_decline_on_avs_failure (bool, optional): Whether to decline charges that fail AVS checks.
+- configuration_merchant_card_payments_decline_on_cvc_failure (bool, optional): Whether to decline charges that fail CVC checks.
 `;
 
 export const createAccountParameters = (
@@ -24,6 +67,342 @@ export const createAccountParameters = (
       .email()
       .optional()
       .describe('The contact email address for the account'),
+    dashboard: z
+      .enum(['express', 'full', 'none'])
+      .optional()
+      .describe('The Stripe dashboard access level'),
+    defaults_currency: z
+      .string()
+      .length(3)
+      .optional()
+      .describe('Three-letter ISO currency code for the default currency'),
+    defaults_locales: z
+      .array(
+        z.enum([
+          'ar-SA',
+          'bg',
+          'bg-BG',
+          'cs',
+          'cs-CZ',
+          'da',
+          'da-DK',
+          'de',
+          'de-DE',
+          'el',
+          'el-GR',
+          'en',
+          'en-AU',
+          'en-CA',
+          'en-GB',
+          'en-IE',
+          'en-IN',
+          'en-NZ',
+          'en-SG',
+          'en-US',
+          'es',
+          'es-419',
+          'es-ES',
+          'et',
+          'et-EE',
+          'fi',
+          'fil',
+          'fil-PH',
+          'fi-FI',
+          'fr',
+          'fr-CA',
+          'fr-FR',
+          'he-IL',
+          'hr',
+          'hr-HR',
+          'hu',
+          'hu-HU',
+          'id',
+          'id-ID',
+          'it',
+          'it-IT',
+          'ja',
+          'ja-JP',
+          'ko',
+          'ko-KR',
+          'lt',
+          'lt-LT',
+          'lv',
+          'lv-LV',
+          'ms',
+          'ms-MY',
+          'mt',
+          'mt-MT',
+          'nb',
+          'nb-NO',
+          'nl',
+          'nl-NL',
+          'pl',
+          'pl-PL',
+          'pt',
+          'pt-BR',
+          'pt-PT',
+          'ro',
+          'ro-RO',
+          'ru',
+          'ru-RU',
+          'sk',
+          'sk-SK',
+          'sl',
+          'sl-SI',
+          'sv',
+          'sv-SE',
+          'th',
+          'th-TH',
+          'tr',
+          'tr-TR',
+          'vi',
+          'vi-VN',
+          'zh',
+          'zh-Hans',
+          'zh-Hant-HK',
+          'zh-Hant-TW',
+          'zh-HK',
+          'zh-TW',
+        ])
+      )
+      .optional()
+      .describe('Array of preferred locales ordered by preference'),
+    defaults_responsibilities_fees_collector: z
+      .enum(['application', 'stripe'])
+      .optional()
+      .describe('Who collects fees from this account'),
+    defaults_responsibilities_losses_collector: z
+      .enum(['application', 'stripe'])
+      .optional()
+      .describe('Who is responsible for losses from this account'),
+    include: z
+      .array(
+        z.enum([
+          'configuration.customer',
+          'configuration.merchant',
+          'configuration.recipient',
+          'configuration.storer',
+          'defaults',
+          'identity',
+          'requirements',
+        ])
+      )
+      .optional()
+      .describe('Additional fields to include in the response'),
+    metadata: z
+      .record(z.string())
+      .optional()
+      .describe('Key-value pairs for storing additional information'),
+    identity_country: z
+      .string()
+      .length(2)
+      .optional()
+      .describe('Two-letter ISO 3166-1 alpha-2 country code'),
+    identity_entity_type: z
+      .enum(['company', 'government_entity', 'individual', 'non_profit'])
+      .optional()
+      .describe('The entity type'),
+    identity_business_details_registered_name: z
+      .string()
+      .optional()
+      .describe('The business legal name'),
+    identity_business_details_doing_business_as: z
+      .string()
+      .optional()
+      .describe('The name used by the business (DBA name)'),
+    identity_business_details_structure: z
+      .enum([
+        'cooperative',
+        'free_zone_establishment',
+        'free_zone_llc',
+        'governmental_unit',
+        'government_instrumentality',
+        'incorporated_association',
+        'incorporated_non_profit',
+        'incorporated_partnership',
+        'limited_liability_partnership',
+        'llc',
+        'multi_member_llc',
+        'private_company',
+        'private_corporation',
+        'private_partnership',
+        'public_company',
+        'public_corporation',
+        'public_listed_corporation',
+        'public_partnership',
+        'registered_charity',
+        'single_member_llc',
+        'sole_establishment',
+        'sole_proprietorship',
+        'tax_exempt_government_instrumentality',
+        'trust',
+        'unincorporated_association',
+        'unincorporated_non_profit',
+        'unincorporated_partnership',
+      ])
+      .optional()
+      .describe('The legal structure of the business'),
+    identity_business_details_phone: z
+      .string()
+      .optional()
+      .describe('The phone number of the business entity'),
+    identity_business_details_url: z
+      .string()
+      .url()
+      .optional()
+      .describe('The business publicly available website'),
+    identity_business_details_product_description: z
+      .string()
+      .optional()
+      .describe(
+        'Internal-only description of the product sold or service provided'
+      ),
+    identity_business_details_estimated_worker_count: z
+      .number()
+      .int()
+      .positive()
+      .optional()
+      .describe('Estimated upper bound of workers for the business'),
+    identity_business_details_annual_revenue_amount: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .describe('Annual revenue amount in smallest currency unit'),
+    identity_business_details_monthly_estimated_revenue_amount: z
+      .number()
+      .int()
+      .nonnegative()
+      .optional()
+      .describe('Monthly estimated revenue amount in smallest currency unit'),
+    identity_business_details_address_street_address: z
+      .string()
+      .optional()
+      .describe('Street address including apartment, suite, unit, etc.'),
+    identity_business_details_address_city: z
+      .string()
+      .optional()
+      .describe('City, district, suburb, town, or village'),
+    identity_business_details_address_state: z
+      .string()
+      .optional()
+      .describe('State, county, province, or region'),
+    identity_business_details_address_postal_code: z
+      .string()
+      .optional()
+      .describe('ZIP or postal code'),
+    identity_business_details_address_country: z
+      .string()
+      .length(2)
+      .optional()
+      .describe('Two-letter country code (ISO 3166-1 alpha-2)'),
+    identity_business_details_id_number_type: z
+      .enum([
+        'tax_id',
+        'vat_id',
+        'registration_number',
+        'company_number',
+        'business_number',
+        'employer_identification_number',
+        'gst_hst_number',
+        'pst_number',
+        'qst_number',
+        'business_registration_number',
+        'incorporation_number',
+        'charity_number',
+        'non_profit_number',
+        'tax_file_number',
+        'australian_business_number',
+        'australian_company_number',
+        'nz_company_number',
+        'br_cnpj',
+        'br_cpf',
+        'mx_rfc',
+        'cl_rut',
+        'co_nit',
+        'ec_ruc',
+        'pe_ruc',
+        'uy_ruc',
+        've_rif',
+      ])
+      .optional()
+      .describe('The type of identification number'),
+    identity_business_details_id_number_value: z
+      .string()
+      .optional()
+      .describe('The identification number value'),
+    identity_individual_given_name: z
+      .string()
+      .optional()
+      .describe('The individual given name (first name)'),
+    identity_individual_surname: z
+      .string()
+      .optional()
+      .describe('The individual surname (last name or family name)'),
+    identity_individual_email: z
+      .string()
+      .email()
+      .optional()
+      .describe('The individual email address'),
+    identity_individual_phone: z
+      .string()
+      .optional()
+      .describe('The individual phone number'),
+    identity_individual_date_of_birth: z
+      .string()
+      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .optional()
+      .describe('The individual date of birth in YYYY-MM-DD format'),
+    identity_individual_address_street_address: z
+      .string()
+      .optional()
+      .describe('Individual street address including apartment, suite, etc.'),
+    identity_individual_address_city: z
+      .string()
+      .optional()
+      .describe('Individual city, district, suburb, town, or village'),
+    identity_individual_address_state: z
+      .string()
+      .optional()
+      .describe('Individual state, county, province, or region'),
+    identity_individual_address_postal_code: z
+      .string()
+      .optional()
+      .describe('Individual ZIP or postal code'),
+    identity_individual_address_country: z
+      .string()
+      .length(2)
+      .optional()
+      .describe('Individual two-letter country code (ISO 3166-1 alpha-2)'),
+    identity_individual_nationalities: z
+      .string()
+      .regex(/^[A-Z]{2}(,[A-Z]{2})*$/)
+      .optional()
+      .describe(
+        'Comma-separated list of two-letter country codes for nationalities'
+      ),
+    configuration_merchant_branding_primary_color: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/)
+      .optional()
+      .describe('Primary brand color as a hex code (e.g., #1A73E8)'),
+    configuration_merchant_branding_secondary_color: z
+      .string()
+      .regex(/^#[0-9A-Fa-f]{6}$/)
+      .optional()
+      .describe('Secondary brand color as a hex code (e.g., #34A853)'),
+    configuration_merchant_bacs_debit_payments_display_name: z
+      .string()
+      .optional()
+      .describe('Display name for BACS debit payments'),
+    configuration_merchant_card_payments_decline_on_avs_failure: z
+      .boolean()
+      .optional()
+      .describe('Whether to decline charges that fail AVS checks'),
+    configuration_merchant_card_payments_decline_on_cvc_failure: z
+      .boolean()
+      .optional()
+      .describe('Whether to decline charges that fail CVC checks'),
   });
 
 export const createAccountAnnotations = () => ({
@@ -40,12 +419,399 @@ export const createAccount = async (
   params: z.infer<ReturnType<typeof createAccountParameters>>
 ) => {
   try {
+    const {
+      defaults_currency: defaultsCurrency,
+      defaults_locales: defaultsLocales,
+      defaults_responsibilities_fees_collector: feesCollector,
+      defaults_responsibilities_losses_collector: lossesCollector,
+      identity_country: identityCountry,
+      identity_entity_type: identityEntityType,
+      identity_business_details_registered_name: businessRegisteredName,
+      identity_business_details_doing_business_as: businessDoingBusinessAs,
+      identity_business_details_structure: businessStructure,
+      identity_business_details_phone: businessPhone,
+      identity_business_details_url: businessUrl,
+      identity_business_details_product_description: businessProductDescription,
+      identity_business_details_estimated_worker_count:
+        businessEstimatedWorkerCount,
+      identity_business_details_annual_revenue_amount: annualRevenueAmount,
+      identity_business_details_monthly_estimated_revenue_amount:
+        monthlyRevenueAmount,
+      identity_business_details_address_street_address: addressStreetAddress,
+      identity_business_details_address_city: addressCity,
+      identity_business_details_address_state: addressState,
+      identity_business_details_address_postal_code: addressPostalCode,
+      identity_business_details_address_country: addressCountry,
+      identity_business_details_id_number_type: idNumberType,
+      identity_business_details_id_number_value: idNumberValue,
+      identity_individual_given_name: individualGivenName,
+      identity_individual_surname: individualSurname,
+      identity_individual_email: individualEmail,
+      identity_individual_phone: individualPhone,
+      identity_individual_date_of_birth: individualDateOfBirth,
+      identity_individual_address_street_address:
+        individualAddressStreetAddress,
+      identity_individual_address_city: individualAddressCity,
+      identity_individual_address_state: individualAddressState,
+      identity_individual_address_postal_code: individualAddressPostalCode,
+      identity_individual_address_country: individualAddressCountry,
+      identity_individual_nationalities: individualNationalities,
+      configuration_merchant_branding_primary_color:
+        configurationMerchantBrandingPrimaryColor,
+      configuration_merchant_branding_secondary_color:
+        configurationMerchantBrandingSecondaryColor,
+      configuration_merchant_bacs_debit_payments_display_name:
+        configurationMerchantBacsDebitPaymentsDisplayName,
+      configuration_merchant_card_payments_decline_on_avs_failure:
+        configurationMerchantCardPaymentsDeclineOnAvsFailure,
+      configuration_merchant_card_payments_decline_on_cvc_failure:
+        configurationMerchantCardPaymentsDeclineOnCvcFailure,
+      ...otherParams
+    } = params;
+
+    const accountData: Stripe.V2.Core.AccountCreateParams = {
+      ...otherParams,
+    };
+
+    if (
+      defaultsCurrency ||
+      defaultsLocales ||
+      feesCollector ||
+      lossesCollector
+    ) {
+      accountData.defaults = {} as Stripe.V2.Core.AccountCreateParams.Defaults;
+
+      if (defaultsCurrency) {
+        accountData.defaults.currency = defaultsCurrency;
+      }
+
+      if (defaultsLocales) {
+        accountData.defaults.locales = defaultsLocales;
+      }
+
+      if (feesCollector || lossesCollector) {
+        accountData.defaults.responsibilities = {
+          fees_collector: feesCollector || null,
+          losses_collector: lossesCollector || null,
+        };
+      }
+    }
+
+    if (
+      identityCountry ||
+      identityEntityType ||
+      individualGivenName ||
+      individualSurname ||
+      individualEmail ||
+      individualPhone ||
+      individualDateOfBirth ||
+      individualAddressStreetAddress ||
+      individualAddressCity ||
+      individualAddressState ||
+      individualAddressPostalCode ||
+      individualAddressCountry ||
+      individualNationalities ||
+      businessRegisteredName ||
+      businessDoingBusinessAs ||
+      businessStructure ||
+      businessPhone ||
+      businessUrl ||
+      businessProductDescription ||
+      businessEstimatedWorkerCount ||
+      annualRevenueAmount ||
+      monthlyRevenueAmount ||
+      addressStreetAddress ||
+      addressCity ||
+      addressState ||
+      addressPostalCode ||
+      addressCountry ||
+      idNumberType ||
+      idNumberValue
+    ) {
+      accountData.identity = {} as Stripe.V2.Core.AccountCreateParams.Identity;
+
+      if (identityCountry) {
+        accountData.identity.country = identityCountry;
+      }
+
+      if (identityEntityType) {
+        accountData.identity.entity_type = identityEntityType;
+      }
+
+      if (
+        individualGivenName ||
+        individualSurname ||
+        individualEmail ||
+        individualPhone ||
+        individualDateOfBirth ||
+        individualAddressStreetAddress ||
+        individualAddressCity ||
+        individualAddressState ||
+        individualAddressPostalCode ||
+        individualAddressCountry ||
+        individualNationalities
+      ) {
+        accountData.identity.individual =
+          {} as Stripe.V2.Core.AccountCreateParams.Identity.Individual;
+
+        if (individualGivenName) {
+          accountData.identity.individual.given_name = individualGivenName;
+        }
+
+        if (individualSurname) {
+          accountData.identity.individual.surname = individualSurname;
+        }
+
+        if (individualEmail) {
+          accountData.identity.individual.email = individualEmail;
+        }
+
+        if (individualPhone) {
+          accountData.identity.individual.phone = individualPhone;
+        }
+
+        if (individualDateOfBirth) {
+          accountData.identity.individual.date_of_birth = individualDateOfBirth;
+        }
+
+        if (
+          individualAddressStreetAddress ||
+          individualAddressCity ||
+          individualAddressState ||
+          individualAddressPostalCode ||
+          individualAddressCountry
+        ) {
+          accountData.identity.individual.address =
+            {} as Stripe.V2.Core.AccountCreateParams.Identity.Individual.Address;
+
+          if (individualAddressStreetAddress) {
+            accountData.identity.individual.address.line1 =
+              individualAddressStreetAddress;
+          }
+
+          if (individualAddressCity) {
+            accountData.identity.individual.address.city =
+              individualAddressCity;
+          }
+
+          if (individualAddressState) {
+            accountData.identity.individual.address.state =
+              individualAddressState;
+          }
+
+          if (individualAddressPostalCode) {
+            accountData.identity.individual.address.postal_code =
+              individualAddressPostalCode;
+          }
+
+          if (individualAddressCountry) {
+            accountData.identity.individual.address.country =
+              individualAddressCountry;
+          }
+        }
+
+        if (individualNationalities) {
+          accountData.identity.individual.nationalities =
+            individualNationalities.split(',');
+        }
+      }
+
+      if (
+        businessRegisteredName ||
+        businessDoingBusinessAs ||
+        businessStructure ||
+        businessPhone ||
+        businessUrl ||
+        businessProductDescription ||
+        businessEstimatedWorkerCount ||
+        annualRevenueAmount ||
+        monthlyRevenueAmount ||
+        addressStreetAddress ||
+        addressCity ||
+        addressState ||
+        addressPostalCode ||
+        addressCountry ||
+        idNumberType ||
+        idNumberValue
+      ) {
+        accountData.identity.business_details =
+          {} as Stripe.V2.Core.AccountCreateParams.Identity.BusinessDetails;
+
+        if (businessRegisteredName) {
+          accountData.identity.business_details.registered_name =
+            businessRegisteredName;
+        }
+
+        if (businessDoingBusinessAs) {
+          accountData.identity.business_details.doing_business_as =
+            businessDoingBusinessAs;
+        }
+
+        if (businessStructure) {
+          accountData.identity.business_details.structure = businessStructure;
+        }
+
+        if (businessPhone) {
+          accountData.identity.business_details.phone = businessPhone;
+        }
+
+        if (businessUrl) {
+          accountData.identity.business_details.url = businessUrl;
+        }
+
+        if (businessProductDescription) {
+          accountData.identity.business_details.product_description =
+            businessProductDescription;
+        }
+
+        if (businessEstimatedWorkerCount) {
+          accountData.identity.business_details.estimated_worker_count =
+            businessEstimatedWorkerCount;
+        }
+
+        if (annualRevenueAmount) {
+          accountData.identity.business_details.annual_revenue = {
+            amount: annualRevenueAmount,
+          };
+        }
+
+        if (monthlyRevenueAmount) {
+          accountData.identity.business_details.monthly_estimated_revenue = {
+            amount: monthlyRevenueAmount,
+          };
+        }
+
+        if (
+          addressStreetAddress ||
+          addressCity ||
+          addressState ||
+          addressPostalCode ||
+          addressCountry
+        ) {
+          accountData.identity.business_details.address =
+            {} as Stripe.V2.Core.AccountCreateParams.Identity.BusinessDetails.Address;
+          if (addressStreetAddress) {
+            accountData.identity.business_details.address.line1 =
+              addressStreetAddress;
+          }
+          if (addressCity) {
+            accountData.identity.business_details.address.city = addressCity;
+          }
+          if (addressState) {
+            accountData.identity.business_details.address.state = addressState;
+          }
+          if (addressPostalCode) {
+            accountData.identity.business_details.address.postal_code =
+              addressPostalCode;
+          }
+          if (addressCountry) {
+            accountData.identity.business_details.address.country =
+              addressCountry;
+          }
+        }
+
+        if (idNumberType || idNumberValue) {
+          accountData.identity.business_details.id_numbers =
+            [] as Stripe.V2.Core.AccountCreateParams.Identity.BusinessDetails.IdNumber[];
+          const idNumber =
+            {} as Stripe.V2.Core.AccountCreateParams.Identity.BusinessDetails.IdNumber;
+
+          if (idNumberType) {
+            idNumber.type = idNumberType;
+          }
+          if (idNumberValue) {
+            idNumber.value = idNumberValue;
+          }
+
+          if (Object.keys(idNumber).length > 0) {
+            accountData.identity.business_details.id_numbers.push(idNumber);
+          }
+        }
+      }
+    }
+
+    if (
+      configurationMerchantBrandingPrimaryColor !== undefined ||
+      configurationMerchantBrandingSecondaryColor !== undefined ||
+      configurationMerchantBacsDebitPaymentsDisplayName !== undefined ||
+      configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined ||
+      configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+    ) {
+      accountData.configuration =
+        {} as Stripe.V2.Core.AccountCreateParams.Configuration;
+
+      if (
+        configurationMerchantBrandingPrimaryColor !== undefined ||
+        configurationMerchantBrandingSecondaryColor !== undefined ||
+        configurationMerchantBacsDebitPaymentsDisplayName !== undefined ||
+        configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined ||
+        configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+      ) {
+        accountData.configuration.merchant =
+          {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant;
+
+        if (
+          configurationMerchantBrandingPrimaryColor !== undefined ||
+          configurationMerchantBrandingSecondaryColor !== undefined
+        ) {
+          accountData.configuration.merchant.branding =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.Branding;
+
+          if (configurationMerchantBrandingPrimaryColor !== undefined) {
+            accountData.configuration.merchant.branding.primary_color =
+              configurationMerchantBrandingPrimaryColor;
+          }
+
+          if (configurationMerchantBrandingSecondaryColor !== undefined) {
+            accountData.configuration.merchant.branding.secondary_color =
+              configurationMerchantBrandingSecondaryColor;
+          }
+        }
+
+        if (configurationMerchantBacsDebitPaymentsDisplayName !== undefined) {
+          accountData.configuration.merchant.bacs_debit_payments = {
+            display_name: configurationMerchantBacsDebitPaymentsDisplayName,
+          } as any;
+        }
+
+        if (
+          configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined ||
+          configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+        ) {
+          accountData.configuration.merchant.card_payments =
+            {} as Stripe.V2.Core.AccountCreateParams.Configuration.Merchant.CardPayments;
+
+          if (
+            configurationMerchantCardPaymentsDeclineOnAvsFailure !== undefined
+          ) {
+            accountData.configuration.merchant.card_payments.decline_on = {
+              ...accountData.configuration.merchant.card_payments.decline_on,
+              avs_failure: configurationMerchantCardPaymentsDeclineOnAvsFailure,
+            };
+          }
+
+          if (
+            configurationMerchantCardPaymentsDeclineOnCvcFailure !== undefined
+          ) {
+            accountData.configuration.merchant.card_payments.decline_on = {
+              ...accountData.configuration.merchant.card_payments.decline_on,
+              cvc_failure: configurationMerchantCardPaymentsDeclineOnCvcFailure,
+            };
+          }
+        }
+      }
+    }
+
+    console.log(JSON.stringify(accountData, null, 2));
+
     const account = await stripe.v2.core.accounts.create(
-      params,
+      accountData,
       context.account ? {stripeAccount: context.account} : undefined
     );
 
-    return {id: account.id};
+    console.log(JSON.stringify(account, null, 2));
+
+    return account;
   } catch (error) {
     return 'Failed to create account';
   }
