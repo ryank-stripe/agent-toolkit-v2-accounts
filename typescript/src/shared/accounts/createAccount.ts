@@ -802,6 +802,7 @@ export const createAccount = async (
       }
     }
 
+    console.log('CREATE ACCOUNT REQUEST:');
     console.log(JSON.stringify(accountData, null, 2));
 
     const account = await stripe.v2.core.accounts.create(
@@ -809,11 +810,10 @@ export const createAccount = async (
       context.account ? {stripeAccount: context.account} : undefined
     );
 
-    console.log(JSON.stringify(account, null, 2));
-
     return account;
   } catch (error) {
-    return 'Failed to create account';
+    console.log('ERROR:\n', error);
+    return error;
   }
 };
 
