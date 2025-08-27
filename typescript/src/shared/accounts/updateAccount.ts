@@ -11,6 +11,9 @@ This tool will update a V2 account in Stripe.
 
 It takes the following arguments:
 ${commonFields}
+- configuration_merchant_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
+- configuration_customer_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
+- configuration_recipient_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
 `;
 
 export const updateAccountParameters = (
@@ -422,6 +425,12 @@ export const updateAccountParameters = (
       .describe(
         'Whether card payment capability is requested for this merchant'
       ),
+    configuration_merchant_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
     configuration_customer_automatic_indirect_tax_exempt: z
       .enum(['none', 'exempt', 'reverse'])
       .optional()
@@ -502,6 +511,12 @@ export const updateAccountParameters = (
       .describe(
         'Whether to request automatic indirect tax capability for this customer'
       ),
+    configuration_customer_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
     configuration_recipient_capability_bank_accounts_local_requested: z
       .boolean()
       .optional()
@@ -525,6 +540,12 @@ export const updateAccountParameters = (
         .describe(
           'Whether to request stripe transfers capability for this recipient'
         ),
+    configuration_recipient_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
   });
 
 export const updateAccountAnnotations = () => ({
@@ -609,6 +630,7 @@ export const updateAccount = async (
         configurationMerchantSupportAddressCountry,
       configuration_merchant_card_payment_capability_requested:
         configurationMerchantCardPaymentCapabilityRequested,
+      configuration_merchant_applied: configurationMerchantApplied,
       configuration_customer_automatic_indirect_tax_exempt:
         configurationCustomerAutomaticIndirectTaxExempt,
       configuration_customer_automatic_indirect_tax_ip_address:
@@ -637,6 +659,7 @@ export const updateAccount = async (
         configurationCustomerShippingAddressCountry,
       configuration_customer_capability_automatic_indirect_tax_requested:
         configurationCustomerCapabilityAutomaticIndirectTaxRequested,
+      configuration_customer_applied: configurationCustomerApplied,
       configuration_recipient_capability_bank_accounts_local_requested:
         configurationRecipientCapabilityBankAccountsLocalRequested,
       configuration_recipient_capability_bank_accounts_wire_requested:
@@ -645,6 +668,7 @@ export const updateAccount = async (
         configurationRecipientCapabilityCardsRequested,
       configuration_recipient_capability_stripe_balance_stripe_transfers_requested:
         configurationRecipientCapabilityStripeBalanceStripeTransfersRequested,
+      configuration_recipient_applied: configurationRecipientApplied,
       ...otherParams
     } = params;
 
@@ -975,6 +999,11 @@ export const updateAccount = async (
         accountData.configuration.merchant =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Merchant;
 
+        if (configurationMerchantApplied !== undefined) {
+          accountData.configuration.merchant.applied =
+            configurationMerchantApplied;
+        }
+
         if (
           configurationMerchantBrandingPrimaryColor !== undefined ||
           configurationMerchantBrandingSecondaryColor !== undefined
@@ -1141,6 +1170,11 @@ export const updateAccount = async (
         accountData.configuration.customer =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Customer;
 
+        if (configurationCustomerApplied !== undefined) {
+          accountData.configuration.customer.applied =
+            configurationCustomerApplied;
+        }
+
         if (
           configurationCustomerAutomaticIndirectTaxExempt !== undefined ||
           configurationCustomerAutomaticIndirectTaxIpAddress !== undefined ||
@@ -1289,6 +1323,11 @@ export const updateAccount = async (
       ) {
         accountData.configuration.recipient =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Recipient;
+
+        if (configurationRecipientApplied !== undefined) {
+          accountData.configuration.recipient.applied =
+            configurationRecipientApplied;
+        }
 
         accountData.configuration.recipient.capabilities =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Recipient.Capabilities;
