@@ -24,8 +24,8 @@ importers:
         specifier: ^4.86.1
         version: 4.86.1(ws@8.18.0)(zod@3.24.1)
       stripe:
-        specifier: ^18.5.0-beta.1
-        version: 18.5.0-beta.2(@types/node@22.10.5)
+        specifier: ^18.6.0-beta.1
+        version: 18.6.0-beta.1(@types/node@22.10.5)
       zod:
         specifier: ^3.24.1
         version: 3.24.1
@@ -3773,8 +3773,8 @@ packages:
       '@types/node':
         optional: true
 
-  stripe@18.5.0-beta.2:
-    resolution: {integrity: sha512-McAjKIiI3XayXwjSJ6JjT2sz/gzIp4QsRY+3s5kFnkVzYJR9rWzkWCkJwXXLxcibRv2IOEZ5SWFmLvHE60czmw==}
+  stripe@18.6.0-beta.1:
+    resolution: {integrity: sha512-HdSLgSRHTtdIA1Q8PlUwQr64Y2+veEJOIYHJ7zYqHQ4ltG2EQMobUQvw2HFuz0yS5GjeHkrJJNCPq9LCkvMu8w==}
     engines: {node: '>=12.*'}
     peerDependencies:
       '@types/node': '>=12.x.x'
@@ -8176,7 +8176,7 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.15.18
 
-  stripe@18.5.0-beta.2(@types/node@22.10.5):
+  stripe@18.6.0-beta.1(@types/node@22.10.5):
     dependencies:
       qs: 6.14.0
     optionalDependencies:

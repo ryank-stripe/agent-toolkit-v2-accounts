@@ -62,8 +62,8 @@ export const retrieveAccount = async (
 
     return account;
   } catch (error) {
-    console.log('ERROR:\n', (error as any).userMessage);
-    return error;
+    // console.log('ERROR:\n', (error as any).userMessage);
+    return (error as any).raw;
   }
 };
 

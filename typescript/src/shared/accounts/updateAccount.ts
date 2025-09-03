@@ -11,6 +11,9 @@ This tool will update a V2 account in Stripe.
 
 It takes the following arguments:
 ${commonFields}
+- configuration_merchant_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
+- configuration_customer_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
+- configuration_recipient_applied (boolean, optional): Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.
 `;
 
 export const updateAccountParameters = (
@@ -422,6 +425,12 @@ export const updateAccountParameters = (
       .describe(
         'Whether card payment capability is requested for this merchant'
       ),
+    configuration_merchant_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
     configuration_customer_automatic_indirect_tax_exempt: z
       .enum(['none', 'exempt', 'reverse'])
       .optional()
@@ -502,6 +511,12 @@ export const updateAccountParameters = (
       .describe(
         'Whether to request automatic indirect tax capability for this customer'
       ),
+    configuration_customer_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
     configuration_recipient_capability_bank_accounts_local_requested: z
       .boolean()
       .optional()
@@ -525,6 +540,12 @@ export const updateAccountParameters = (
         .describe(
           'Whether to request stripe transfers capability for this recipient'
         ),
+    configuration_recipient_applied: z
+      .boolean()
+      .optional()
+      .describe(
+        'Whether to apply the configuration or deactivate it. Setting applied to false will deactivate the configuration. Setting applied to true will re-apply the configuration.'
+      ),
   });
 
 export const updateAccountAnnotations = () => ({
@@ -540,118 +561,120 @@ export const updateAccount = async (
   context: Context,
   params: z.infer<ReturnType<typeof updateAccountParameters>>
 ) => {
+  const {
+    account_id: accountId,
+    defaults_currency: defaultsCurrency,
+    defaults_locales: defaultsLocales,
+    defaults_responsibilities_fees_collector: feesCollector,
+    defaults_responsibilities_losses_collector: lossesCollector,
+    identity_country: identityCountry,
+    identity_entity_type: identityEntityType,
+    identity_business_details_registered_name: businessRegisteredName,
+    identity_business_details_doing_business_as: businessDoingBusinessAs,
+    identity_business_details_structure: businessStructure,
+    identity_business_details_phone: businessPhone,
+    identity_business_details_url: businessUrl,
+    identity_business_details_product_description: businessProductDescription,
+    identity_business_details_estimated_worker_count:
+      businessEstimatedWorkerCount,
+    identity_business_details_annual_revenue_amount: annualRevenueAmount,
+    identity_business_details_monthly_estimated_revenue_amount:
+      monthlyRevenueAmount,
+    identity_business_details_address_street_address: addressStreetAddress,
+    identity_business_details_address_city: addressCity,
+    identity_business_details_address_state: addressState,
+    identity_business_details_address_postal_code: addressPostalCode,
+    identity_business_details_address_country: addressCountry,
+    identity_business_details_id_number_type: idNumberType,
+    identity_business_details_id_number_value: idNumberValue,
+    identity_individual_given_name: individualGivenName,
+    identity_individual_surname: individualSurname,
+    identity_individual_email: individualEmail,
+    identity_individual_phone: individualPhone,
+    identity_individual_date_of_birth: individualDateOfBirth,
+    identity_individual_address_street_address: individualAddressStreetAddress,
+    identity_individual_address_city: individualAddressCity,
+    identity_individual_address_state: individualAddressState,
+    identity_individual_address_postal_code: individualAddressPostalCode,
+    identity_individual_address_country: individualAddressCountry,
+    identity_individual_nationalities: individualNationalities,
+    configuration_merchant_branding_primary_color:
+      configurationMerchantBrandingPrimaryColor,
+    configuration_merchant_branding_secondary_color:
+      configurationMerchantBrandingSecondaryColor,
+    configuration_merchant_bacs_debit_payments_display_name:
+      configurationMerchantBacsDebitPaymentsDisplayName,
+    configuration_merchant_card_payments_decline_on_avs_failure:
+      configurationMerchantCardPaymentsDeclineOnAvsFailure,
+    configuration_merchant_card_payments_decline_on_cvc_failure:
+      configurationMerchantCardPaymentsDeclineOnCvcFailure,
+    configuration_merchant_mcc: configurationMerchantMcc,
+    configuration_merchant_statement_descriptor:
+      configurationMerchantStatementDescriptor,
+    configuration_merchant_statement_descriptor_prefix:
+      configurationMerchantStatementDescriptorPrefix,
+    configuration_merchant_support_email: configurationMerchantSupportEmail,
+    configuration_merchant_support_phone: configurationMerchantSupportPhone,
+    configuration_merchant_support_url: configurationMerchantSupportUrl,
+    configuration_merchant_support_address_street_address:
+      configurationMerchantSupportAddressStreetAddress,
+    configuration_merchant_support_address_city:
+      configurationMerchantSupportAddressCity,
+    configuration_merchant_support_address_state:
+      configurationMerchantSupportAddressState,
+    configuration_merchant_support_address_postal_code:
+      configurationMerchantSupportAddressPostalCode,
+    configuration_merchant_support_address_country:
+      configurationMerchantSupportAddressCountry,
+    configuration_merchant_card_payment_capability_requested:
+      configurationMerchantCardPaymentCapabilityRequested,
+    configuration_merchant_applied: configurationMerchantApplied,
+    configuration_customer_automatic_indirect_tax_exempt:
+      configurationCustomerAutomaticIndirectTaxExempt,
+    configuration_customer_automatic_indirect_tax_ip_address:
+      configurationCustomerAutomaticIndirectTaxIpAddress,
+    configuration_customer_automatic_indirect_tax_location_source:
+      configurationCustomerAutomaticIndirectTaxLocationSource,
+    configuration_customer_billing_invoice_footer:
+      configurationCustomerBillingInvoiceFooter,
+    configuration_customer_billing_invoice_next_sequence:
+      configurationCustomerBillingInvoiceNextSequence,
+    configuration_customer_billing_invoice_prefix:
+      configurationCustomerBillingInvoicePrefix,
+    configuration_customer_shipping_name: configurationCustomerShippingName,
+    configuration_customer_shipping_phone: configurationCustomerShippingPhone,
+    configuration_customer_shipping_address_line1:
+      configurationCustomerShippingAddressLine1,
+    configuration_customer_shipping_address_line2:
+      configurationCustomerShippingAddressLine2,
+    configuration_customer_shipping_address_city:
+      configurationCustomerShippingAddressCity,
+    configuration_customer_shipping_address_state:
+      configurationCustomerShippingAddressState,
+    configuration_customer_shipping_address_postal_code:
+      configurationCustomerShippingAddressPostalCode,
+    configuration_customer_shipping_address_country:
+      configurationCustomerShippingAddressCountry,
+    configuration_customer_capability_automatic_indirect_tax_requested:
+      configurationCustomerCapabilityAutomaticIndirectTaxRequested,
+    configuration_customer_applied: configurationCustomerApplied,
+    configuration_recipient_capability_bank_accounts_local_requested:
+      configurationRecipientCapabilityBankAccountsLocalRequested,
+    configuration_recipient_capability_bank_accounts_wire_requested:
+      configurationRecipientCapabilityBankAccountsWireRequested,
+    configuration_recipient_capability_cards_requested:
+      configurationRecipientCapabilityCardsRequested,
+    configuration_recipient_capability_stripe_balance_stripe_transfers_requested:
+      configurationRecipientCapabilityStripeBalanceStripeTransfersRequested,
+    configuration_recipient_applied: configurationRecipientApplied,
+    ...otherParams
+  } = params;
+
+  const accountData: Stripe.V2.Core.AccountUpdateParams = {
+    ...otherParams,
+  };
+
   try {
-    const {
-      account_id: accountId,
-      defaults_currency: defaultsCurrency,
-      defaults_locales: defaultsLocales,
-      defaults_responsibilities_fees_collector: feesCollector,
-      defaults_responsibilities_losses_collector: lossesCollector,
-      identity_country: identityCountry,
-      identity_entity_type: identityEntityType,
-      identity_business_details_registered_name: businessRegisteredName,
-      identity_business_details_doing_business_as: businessDoingBusinessAs,
-      identity_business_details_structure: businessStructure,
-      identity_business_details_phone: businessPhone,
-      identity_business_details_url: businessUrl,
-      identity_business_details_product_description: businessProductDescription,
-      identity_business_details_estimated_worker_count:
-        businessEstimatedWorkerCount,
-      identity_business_details_annual_revenue_amount: annualRevenueAmount,
-      identity_business_details_monthly_estimated_revenue_amount:
-        monthlyRevenueAmount,
-      identity_business_details_address_street_address: addressStreetAddress,
-      identity_business_details_address_city: addressCity,
-      identity_business_details_address_state: addressState,
-      identity_business_details_address_postal_code: addressPostalCode,
-      identity_business_details_address_country: addressCountry,
-      identity_business_details_id_number_type: idNumberType,
-      identity_business_details_id_number_value: idNumberValue,
-      identity_individual_given_name: individualGivenName,
-      identity_individual_surname: individualSurname,
-      identity_individual_email: individualEmail,
-      identity_individual_phone: individualPhone,
-      identity_individual_date_of_birth: individualDateOfBirth,
-      identity_individual_address_street_address:
-        individualAddressStreetAddress,
-      identity_individual_address_city: individualAddressCity,
-      identity_individual_address_state: individualAddressState,
-      identity_individual_address_postal_code: individualAddressPostalCode,
-      identity_individual_address_country: individualAddressCountry,
-      identity_individual_nationalities: individualNationalities,
-      configuration_merchant_branding_primary_color:
-        configurationMerchantBrandingPrimaryColor,
-      configuration_merchant_branding_secondary_color:
-        configurationMerchantBrandingSecondaryColor,
-      configuration_merchant_bacs_debit_payments_display_name:
-        configurationMerchantBacsDebitPaymentsDisplayName,
-      configuration_merchant_card_payments_decline_on_avs_failure:
-        configurationMerchantCardPaymentsDeclineOnAvsFailure,
-      configuration_merchant_card_payments_decline_on_cvc_failure:
-        configurationMerchantCardPaymentsDeclineOnCvcFailure,
-      configuration_merchant_mcc: configurationMerchantMcc,
-      configuration_merchant_statement_descriptor:
-        configurationMerchantStatementDescriptor,
-      configuration_merchant_statement_descriptor_prefix:
-        configurationMerchantStatementDescriptorPrefix,
-      configuration_merchant_support_email: configurationMerchantSupportEmail,
-      configuration_merchant_support_phone: configurationMerchantSupportPhone,
-      configuration_merchant_support_url: configurationMerchantSupportUrl,
-      configuration_merchant_support_address_street_address:
-        configurationMerchantSupportAddressStreetAddress,
-      configuration_merchant_support_address_city:
-        configurationMerchantSupportAddressCity,
-      configuration_merchant_support_address_state:
-        configurationMerchantSupportAddressState,
-      configuration_merchant_support_address_postal_code:
-        configurationMerchantSupportAddressPostalCode,
-      configuration_merchant_support_address_country:
-        configurationMerchantSupportAddressCountry,
-      configuration_merchant_card_payment_capability_requested:
-        configurationMerchantCardPaymentCapabilityRequested,
-      configuration_customer_automatic_indirect_tax_exempt:
-        configurationCustomerAutomaticIndirectTaxExempt,
-      configuration_customer_automatic_indirect_tax_ip_address:
-        configurationCustomerAutomaticIndirectTaxIpAddress,
-      configuration_customer_automatic_indirect_tax_location_source:
-        configurationCustomerAutomaticIndirectTaxLocationSource,
-      configuration_customer_billing_invoice_footer:
-        configurationCustomerBillingInvoiceFooter,
-      configuration_customer_billing_invoice_next_sequence:
-        configurationCustomerBillingInvoiceNextSequence,
-      configuration_customer_billing_invoice_prefix:
-        configurationCustomerBillingInvoicePrefix,
-      configuration_customer_shipping_name: configurationCustomerShippingName,
-      configuration_customer_shipping_phone: configurationCustomerShippingPhone,
-      configuration_customer_shipping_address_line1:
-        configurationCustomerShippingAddressLine1,
-      configuration_customer_shipping_address_line2:
-        configurationCustomerShippingAddressLine2,
-      configuration_customer_shipping_address_city:
-        configurationCustomerShippingAddressCity,
-      configuration_customer_shipping_address_state:
-        configurationCustomerShippingAddressState,
-      configuration_customer_shipping_address_postal_code:
-        configurationCustomerShippingAddressPostalCode,
-      configuration_customer_shipping_address_country:
-        configurationCustomerShippingAddressCountry,
-      configuration_customer_capability_automatic_indirect_tax_requested:
-        configurationCustomerCapabilityAutomaticIndirectTaxRequested,
-      configuration_recipient_capability_bank_accounts_local_requested:
-        configurationRecipientCapabilityBankAccountsLocalRequested,
-      configuration_recipient_capability_bank_accounts_wire_requested:
-        configurationRecipientCapabilityBankAccountsWireRequested,
-      configuration_recipient_capability_cards_requested:
-        configurationRecipientCapabilityCardsRequested,
-      configuration_recipient_capability_stripe_balance_stripe_transfers_requested:
-        configurationRecipientCapabilityStripeBalanceStripeTransfersRequested,
-      ...otherParams
-    } = params;
-
-    const accountData: Stripe.V2.Core.AccountUpdateParams = {
-      ...otherParams,
-    };
-
     if (
       defaultsCurrency ||
       defaultsLocales ||
@@ -975,6 +998,11 @@ export const updateAccount = async (
         accountData.configuration.merchant =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Merchant;
 
+        if (configurationMerchantApplied !== undefined) {
+          accountData.configuration.merchant.applied =
+            configurationMerchantApplied;
+        }
+
         if (
           configurationMerchantBrandingPrimaryColor !== undefined ||
           configurationMerchantBrandingSecondaryColor !== undefined
@@ -1141,6 +1169,11 @@ export const updateAccount = async (
         accountData.configuration.customer =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Customer;
 
+        if (configurationCustomerApplied !== undefined) {
+          accountData.configuration.customer.applied =
+            configurationCustomerApplied;
+        }
+
         if (
           configurationCustomerAutomaticIndirectTaxExempt !== undefined ||
           configurationCustomerAutomaticIndirectTaxIpAddress !== undefined ||
@@ -1290,6 +1323,11 @@ export const updateAccount = async (
         accountData.configuration.recipient =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Recipient;
 
+        if (configurationRecipientApplied !== undefined) {
+          accountData.configuration.recipient.applied =
+            configurationRecipientApplied;
+        }
+
         accountData.configuration.recipient.capabilities =
           {} as Stripe.V2.Core.AccountUpdateParams.Configuration.Recipient.Capabilities;
 
@@ -1347,8 +1385,8 @@ export const updateAccount = async (
       }
     }
 
-    console.log('UPDATE ACCOUNT REQUEST:');
-    console.log(JSON.stringify(accountData, null, 2));
+    // console.log('UPDATE ACCOUNT REQUEST:');
+    // console.log(JSON.stringify(accountData, null, 2));
 
     const account = await stripe.v2.core.accounts.update(
       accountId,
@@ -1356,10 +1394,16 @@ export const updateAccount = async (
       context.account ? {stripeAccount: context.account} : undefined
     );
 
-    return account;
+    return {
+      request: accountData,
+      account: account,
+    };
   } catch (error) {
-    console.log('ERROR:\n', (error as any).raw.message);
-    return error;
+    // console.log('ERROR:\n', (error as any).raw.message);
+    return {
+      request: accountData,
+      error: (error as any).raw,
+    };
   }
 };
 
