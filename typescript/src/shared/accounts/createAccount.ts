@@ -201,10 +201,6 @@ export const createAccountParameters = (
       ])
       .optional()
       .describe('The legal structure of the business'),
-    identity_business_details_phone: z
-      .string()
-      .optional()
-      .describe('The phone number of the business entity'),
     identity_business_details_url: z
       .string()
       .url()
@@ -303,15 +299,27 @@ export const createAccountParameters = (
       .email()
       .optional()
       .describe('The individual email address'),
-    identity_individual_phone: z
-      .string()
+    identity_individual_date_of_birth_year: z
+      .number()
+      .int()
+      .min(1900)
+      .max(2100)
       .optional()
-      .describe('The individual phone number'),
-    identity_individual_date_of_birth: z
-      .string()
-      .regex(/^\d{4}-\d{2}-\d{2}$/)
+      .describe('The individual birth year (e.g., 1990)'),
+    identity_individual_date_of_birth_month: z
+      .number()
+      .int()
+      .min(1)
+      .max(12)
       .optional()
-      .describe('The individual date of birth in YYYY-MM-DD format'),
+      .describe('The individual birth month (1-12)'),
+    identity_individual_date_of_birth_day: z
+      .number()
+      .int()
+      .min(1)
+      .max(31)
+      .optional()
+      .describe('The individual birth day (1-31)'),
     identity_individual_address_street_address: z
       .string()
       .optional()
@@ -383,10 +391,6 @@ export const createAccountParameters = (
       .email()
       .optional()
       .describe('Support email address for customer inquiries'),
-    configuration_merchant_support_phone: z
-      .string()
-      .optional()
-      .describe('Support phone number for customer inquiries'),
     configuration_merchant_support_url: z
       .string()
       .url()
@@ -460,10 +464,6 @@ export const createAccountParameters = (
       .string()
       .optional()
       .describe('Customer name for shipping information'),
-    configuration_customer_shipping_phone: z
-      .string()
-      .optional()
-      .describe('Customer phone number for shipping (including extension)'),
     configuration_customer_shipping_address_line1: z
       .string()
       .optional()
@@ -549,7 +549,6 @@ export const createAccount = async (
     identity_business_details_registered_name: businessRegisteredName,
     identity_business_details_doing_business_as: businessDoingBusinessAs,
     identity_business_details_structure: businessStructure,
-    identity_business_details_phone: businessPhone,
     identity_business_details_url: businessUrl,
     identity_business_details_product_description: businessProductDescription,
     identity_business_details_estimated_worker_count:
@@ -567,8 +566,9 @@ export const createAccount = async (
     identity_individual_given_name: individualGivenName,
     identity_individual_surname: individualSurname,
     identity_individual_email: individualEmail,
-    identity_individual_phone: individualPhone,
-    identity_individual_date_of_birth: individualDateOfBirth,
+    identity_individual_date_of_birth_year: individualDateOfBirthYear,
+    identity_individual_date_of_birth_month: individualDateOfBirthMonth,
+    identity_individual_date_of_birth_day: individualDateOfBirthDay,
     identity_individual_address_street_address: individualAddressStreetAddress,
     identity_individual_address_city: individualAddressCity,
     identity_individual_address_state: individualAddressState,
@@ -591,7 +591,6 @@ export const createAccount = async (
     configuration_merchant_statement_descriptor_prefix:
       configurationMerchantStatementDescriptorPrefix,
     configuration_merchant_support_email: configurationMerchantSupportEmail,
-    configuration_merchant_support_phone: configurationMerchantSupportPhone,
     configuration_merchant_support_url: configurationMerchantSupportUrl,
     configuration_merchant_support_address_street_address:
       configurationMerchantSupportAddressStreetAddress,
@@ -618,7 +617,6 @@ export const createAccount = async (
     configuration_customer_billing_invoice_prefix:
       configurationCustomerBillingInvoicePrefix,
     configuration_customer_shipping_name: configurationCustomerShippingName,
-    configuration_customer_shipping_phone: configurationCustomerShippingPhone,
     configuration_customer_shipping_address_line1:
       configurationCustomerShippingAddressLine1,
     configuration_customer_shipping_address_line2:
@@ -679,8 +677,9 @@ export const createAccount = async (
       individualGivenName ||
       individualSurname ||
       individualEmail ||
-      individualPhone ||
-      individualDateOfBirth ||
+      individualDateOfBirthYear ||
+      individualDateOfBirthMonth ||
+      individualDateOfBirthDay ||
       individualAddressStreetAddress ||
       individualAddressCity ||
       individualAddressState ||
@@ -690,7 +689,6 @@ export const createAccount = async (
       businessRegisteredName ||
       businessDoingBusinessAs ||
       businessStructure ||
-      businessPhone ||
       businessUrl ||
       businessProductDescription ||
       businessEstimatedWorkerCount ||
@@ -718,8 +716,9 @@ export const createAccount = async (
         individualGivenName ||
         individualSurname ||
         individualEmail ||
-        individualPhone ||
-        individualDateOfBirth ||
+        individualDateOfBirthYear ||
+        individualDateOfBirthMonth ||
+        individualDateOfBirthDay ||
         individualAddressStreetAddress ||
         individualAddressCity ||
         individualAddressState ||
@@ -742,12 +741,16 @@ export const createAccount = async (
           accountData.identity.individual.email = individualEmail;
         }
 
-        if (individualPhone) {
-          accountData.identity.individual.phone = individualPhone;
-        }
-
-        if (individualDateOfBirth) {
-          accountData.identity.individual.date_of_birth = individualDateOfBirth;
+        if (
+          individualDateOfBirthYear ||
+          individualDateOfBirthMonth ||
+          individualDateOfBirthDay
+        ) {
+          accountData.identity.individual.date_of_birth = {
+            year: individualDateOfBirthYear,
+            month: individualDateOfBirthMonth,
+            day: individualDateOfBirthDay,
+          };
         }
 
         if (
@@ -796,7 +799,6 @@ export const createAccount = async (
         businessRegisteredName ||
         businessDoingBusinessAs ||
         businessStructure ||
-        businessPhone ||
         businessUrl ||
         businessProductDescription ||
         businessEstimatedWorkerCount ||
@@ -825,10 +827,6 @@ export const createAccount = async (
 
         if (businessStructure) {
           accountData.identity.business_details.structure = businessStructure;
-        }
-
-        if (businessPhone) {
-          accountData.identity.business_details.phone = businessPhone;
         }
 
         if (businessUrl) {
@@ -916,7 +914,6 @@ export const createAccount = async (
       configurationMerchantStatementDescriptor !== undefined ||
       configurationMerchantStatementDescriptorPrefix !== undefined ||
       configurationMerchantSupportEmail !== undefined ||
-      configurationMerchantSupportPhone !== undefined ||
       configurationMerchantSupportUrl !== undefined ||
       configurationMerchantSupportAddressStreetAddress !== undefined ||
       configurationMerchantSupportAddressCity !== undefined ||
@@ -931,7 +928,6 @@ export const createAccount = async (
       configurationCustomerBillingInvoiceNextSequence !== undefined ||
       configurationCustomerBillingInvoicePrefix !== undefined ||
       configurationCustomerShippingName !== undefined ||
-      configurationCustomerShippingPhone !== undefined ||
       configurationCustomerShippingAddressLine1 !== undefined ||
       configurationCustomerShippingAddressLine2 !== undefined ||
       configurationCustomerShippingAddressCity !== undefined ||
@@ -960,7 +956,6 @@ export const createAccount = async (
         configurationMerchantStatementDescriptor !== undefined ||
         configurationMerchantStatementDescriptorPrefix !== undefined ||
         configurationMerchantSupportEmail !== undefined ||
-        configurationMerchantSupportPhone !== undefined ||
         configurationMerchantSupportUrl !== undefined ||
         configurationMerchantSupportAddressStreetAddress !== undefined ||
         configurationMerchantSupportAddressCity !== undefined ||
@@ -1042,7 +1037,6 @@ export const createAccount = async (
 
         if (
           configurationMerchantSupportEmail !== undefined ||
-          configurationMerchantSupportPhone !== undefined ||
           configurationMerchantSupportUrl !== undefined ||
           configurationMerchantSupportAddressStreetAddress !== undefined ||
           configurationMerchantSupportAddressCity !== undefined ||
@@ -1056,11 +1050,6 @@ export const createAccount = async (
           if (configurationMerchantSupportEmail !== undefined) {
             accountData.configuration.merchant.support.email =
               configurationMerchantSupportEmail;
-          }
-
-          if (configurationMerchantSupportPhone !== undefined) {
-            accountData.configuration.merchant.support.phone =
-              configurationMerchantSupportPhone;
           }
 
           if (configurationMerchantSupportUrl !== undefined) {
@@ -1125,7 +1114,6 @@ export const createAccount = async (
         configurationCustomerBillingInvoiceNextSequence !== undefined ||
         configurationCustomerBillingInvoicePrefix !== undefined ||
         configurationCustomerShippingName !== undefined ||
-        configurationCustomerShippingPhone !== undefined ||
         configurationCustomerShippingAddressLine1 !== undefined ||
         configurationCustomerShippingAddressLine2 !== undefined ||
         configurationCustomerShippingAddressCity !== undefined ||
@@ -1196,7 +1184,6 @@ export const createAccount = async (
 
         if (
           configurationCustomerShippingName !== undefined ||
-          configurationCustomerShippingPhone !== undefined ||
           configurationCustomerShippingAddressLine1 !== undefined ||
           configurationCustomerShippingAddressLine2 !== undefined ||
           configurationCustomerShippingAddressCity !== undefined ||
@@ -1210,11 +1197,6 @@ export const createAccount = async (
           if (configurationCustomerShippingName !== undefined) {
             accountData.configuration.customer.shipping.name =
               configurationCustomerShippingName;
-          }
-
-          if (configurationCustomerShippingPhone !== undefined) {
-            accountData.configuration.customer.shipping.phone =
-              configurationCustomerShippingPhone;
           }
 
           if (

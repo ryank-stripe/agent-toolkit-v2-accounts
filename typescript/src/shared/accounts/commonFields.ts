@@ -13,7 +13,6 @@ export const commonFields = `
 - identity_business_details_registered_name (str, optional): The business legal name as registered with government authorities. Example: "Acme Corporation Inc."
 - identity_business_details_doing_business_as (str, optional): The name which is used by the business for marketing and customer-facing purposes (DBA name). Example: "Acme Coffee Shop".
 - identity_business_details_structure (str, optional): The category identifying the legal structure of the business. Options include: 'llc', 'private_corporation', 'sole_proprietorship', 'partnership', 'cooperative', etc.
-- identity_business_details_phone (str, optional): The phone number of the Business Entity. Must be a valid international phone number. Examples: "+1 555-123-4567", "+44 20 7946 0958".
 - identity_business_details_url (str, optional): The business's publicly available website URL. Must be a valid URL. Examples: "https://www.acmecorp.com", "https://business.example.org".
 - identity_business_details_product_description (str, optional): Internal-only description of the product sold or service provided by the business. It's used by Stripe for risk and underwriting purposes. Be specific and detailed. Examples: "Online coffee subscription service", "B2B software consulting".
 - identity_business_details_estimated_worker_count (int, optional): An estimated upper bound of employees, contractors, vendors, etc. currently working for the business. Examples: 5, 25, 100.
@@ -29,8 +28,9 @@ export const commonFields = `
 - identity_individual_given_name (str, optional): The individual's first or given name. Examples: "John", "Jane", "Maria".
 - identity_individual_surname (str, optional): The individual's last or family name. Examples: "Smith", "Johnson", "Garcia".
 - identity_individual_email (str, optional): The individual's email address. Must be a valid email format. Examples: "john.smith@email.com", "jane.doe@company.org".
-- identity_individual_phone (str, optional): The individual's phone number. Must be a valid international phone number. Examples: "+1 555-123-4567", "+44 20 7946 0958".
-- identity_individual_date_of_birth (str, optional): The individual's date of birth. Must be in YYYY-MM-DD format. Examples: "1990-05-15", "1985-12-03".
+- identity_individual_date_of_birth_year (int, optional): The individual's birth year. Must be between 1900 and 2100. Examples: 1990, 1985, 2000.
+- identity_individual_date_of_birth_month (int, optional): The individual's birth month. Must be between 1 and 12. Examples: 5, 12, 1.
+- identity_individual_date_of_birth_day (int, optional): The individual's birth day. Must be between 1 and 31. Examples: 15, 3, 28.
 - identity_individual_address_street_address (str, optional): The individual's residential address line 1 (e.g., street, PO Box, or company name). Examples: "123 Oak Street", "456 Maple Ave Apt 2B".
 - identity_individual_address_city (str, optional): Individual's residential city, district, suburb, town, or village. Examples: "New York", "Los Angeles", "Manchester".
 - identity_individual_address_state (str, optional): Individual's residential state, county, province, or region. Examples: "NY", "CA", "Texas", "Ontario".
@@ -46,7 +46,6 @@ export const commonFields = `
 - configuration_merchant_statement_descriptor (str, optional): The default text that appears on statements for non-card charges outside of Japan. For card charges, if you don't set a statement_descriptor_prefix, this text is also used as the statement descriptor prefix. Maximum 22 characters. Examples: "ACME CORP", "COFFEE SHOP NYC".
 - configuration_merchant_statement_descriptor_prefix (str, optional): Default text that appears on statements for card charges outside of Japan, prefixing any dynamic statement_descriptor_suffix specified on the charge. To maximize space for the dynamic part of the descriptor, keep this text short. Maximum 10 characters. Examples: "ACME*", "COFFEE*".
 - configuration_merchant_support_email (str, optional): A publicly available email address for sending support issues to. Examples: "support@acmecorp.com", "help@coffeeshop.com".
-- configuration_merchant_support_phone (str, optional): A publicly available phone number to call with support issues. Must be a valid international phone number. Examples: "+1 555-123-4567", "+44 20 7946 0958".
 - configuration_merchant_support_url (str, optional): A publicly available website for handling support issues. Must be a valid URL. Examples: "https://www.acmecorp.com/support", "https://help.coffeeshop.com".
 - configuration_merchant_support_address_street_address (str, optional): A publicly available mailing address for sending support issues to - street address (including apartment, suite, etc.). Examples: "123 Support Street", "456 Help Avenue Suite 100".
 - configuration_merchant_support_address_city (str, optional): Support address city, district, suburb, town, or village. Examples: "San Francisco", "London", "Toronto".
@@ -61,7 +60,6 @@ export const commonFields = `
 - configuration_customer_billing_invoice_next_sequence (int, optional): The sequence to be used on the customer's next invoice. Defaults to 1. This number will increment with each invoice. Examples: 1, 1001, 5000.
 - configuration_customer_billing_invoice_prefix (str, optional): The prefix for the customer used to generate unique invoice numbers. Must be 3–12 uppercase letters or numbers. Examples: "INV", "ACME", "2024".
 - configuration_customer_shipping_name (str, optional): Customer name for shipping information. The customer's shipping information appears on invoices emailed to this customer. Examples: "John Smith", "Acme Corp Shipping Dept".
-- configuration_customer_shipping_phone (str, optional): Customer phone (including extension) for shipping purposes. Examples: "+1 555-123-4567", "+44 20 7946 0958 ext 123".
 - configuration_customer_shipping_address_line1 (str, optional): Customer shipping address line 1 (e.g., street, PO Box, or company name). Examples: "123 Shipping Lane", "456 Delivery St Suite 200".
 - configuration_customer_shipping_address_line2 (str, optional): Customer shipping address line 2 (e.g., apartment, suite, unit, or building). Examples: "Apt 2B", "Building C", "Floor 3".
 - configuration_customer_shipping_address_city (str, optional): Customer shipping address city, district, suburb, town, or village. Examples: "New York", "London", "Toronto".
